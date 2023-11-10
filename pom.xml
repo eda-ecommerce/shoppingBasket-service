@@ -108,8 +108,14 @@
 				<version>3.4.0</version>
 				<configuration>
 					<to>
-						<image>myimage</image>
+						<image>eda-customer</image>
 					</to>
+					<from>
+						<image>eclipse-temurin:17-alpine</image>
+					</from>
+					<container>
+						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+					</container>
 				</configuration>
 			</plugin>
 		</plugins>
