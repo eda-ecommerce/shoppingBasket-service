@@ -1,32 +1,39 @@
 package eda.teamred.service
 
-import eda.teamred.dto.CustomerDTO
-import eda.teamred.repository.CustomerRepository
+import eda.teamred.service.entity.Customer
+import eda.teamred.service.repository.CustomerRepository
+import jakarta.transaction.Transactional
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-import org.testng.annotations.Test
-import java.util.*
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
+//Needs a MYSQL Container Running as configured in application.properties
 @DataJpaTest
+//Annotate to find config of application. TODO: Create separate test configs (maybe testcontainers?)
+@ExtendWith(SpringExtension::class)
+//Disable the replacement of mysql datasource with h2
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class RepositoryTest {
 
     @Autowired
-    lateinit var testEntityManager: TestEntityManager
+    lateinit var entityManager: TestEntityManager
 
     @Autowired
-    lateinit var customerRepository : CustomerRepository
+    lateinit var customerRepository: CustomerRepository
 
     @Test
-    fun findByIdTest(){
-        val uuid = UUID.randomUUID()
-
-        val customer = CustomerDTO(uuid, "Hans", "Peter", "Somewhere")
-        testEntityManager.persist(customer)
-        testEntityManager.flush()
-        val found = customerRepository.findById(uuid)
-
-        assert(found.equals(customer))
+    fun WhenFindById_thenReturnCustomer() {
+        val customer= Customer("Test","Testing","Testheim")
+        entityManager.persist(customer)
+        entityManager.flush()
+        val customerFound = customerRepository.findByIdOrNull(customer.id)
+        assertThat(customerFound == customer)
     }
 
 }
