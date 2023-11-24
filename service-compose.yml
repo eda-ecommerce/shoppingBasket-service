@@ -9,5 +9,3 @@ services:
   '
       SPRING_KAFKA_BOOTSTRAP_SERVERS: 'team-red-kafka-1:9092'
       KAFKA_BOOTSTRAP_ADDRESS: 'team-red-kafka-1:9092'
-    depends_on:
-      - db
