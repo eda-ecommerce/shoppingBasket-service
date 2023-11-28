@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -27,13 +29,24 @@ class RepositoryTest {
     @Autowired
     lateinit var customerRepository: CustomerRepository
 
+
     @Test
     fun WhenFindById_thenReturnCustomer() {
         val customer= Customer("Test","Testing","Testheim")
         entityManager.persist(customer)
         entityManager.flush()
         val customerFound = customerRepository.findByIdOrNull(customer.id)
-        assertThat(customerFound == customer)
+        assert(customerFound == customer)
+    }
+
+    @Test
+    fun WhenDeleteCustomer_thenReturnNull(){
+        val customer= Customer("Test","Testing","Testheim")
+        entityManager.persist(customer)
+        entityManager.flush()
+        customerRepository.deleteById(customer.id)
+        val deletedCustomer = customerRepository.findByIdOrNull(customer.id)
+        assert(deletedCustomer == null)
     }
 
 }

@@ -2,7 +2,9 @@ package eda.teamred.service.repository
 
 import eda.teamred.service.entity.Customer
 import org.springframework.data.repository.CrudRepository
+import org.springframework.stereotype.Repository
 import java.util.UUID
 
-interface CustomerRepository: CrudRepository<Customer, ULong>{
+@Repository
+interface CustomerRepository: CrudRepository<Customer, UUID>{
 }
