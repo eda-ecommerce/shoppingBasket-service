@@ -10,8 +10,9 @@ on:
       - '**/.gitignore'
       - 'model/**'
     # this defines the branches you can push to, in order to execute the workflow
-    branches:
-      - 'main'
+    #branches:
+    #  - 'main'
+    #  -
 # a workflow consists of multiple jobs
 jobs:
   # name of the job(s)
@@ -29,10 +30,24 @@ jobs:
           distribution: 'temurin'
           # Setup maven cache
           cache: maven
+      - name: Semantic Release
+        if: ${{ github.event_name == 'push' }}
+        uses: cycjimmy/semantic-release-action@v4
+        id: semantic-release
+        with:
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/git
+        env:
+          persist-credentials: false
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
       - name: convert repository name to lowercase
+        if: ${{ (steps.semantic-release.outputs.new_release_published == 'true') }}
         run: |
           echo "REPO_LOWERCASE=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Login to GitHub Container Registry
+        if: ${{ (github.event_name == 'push') && (steps.semantic-release.outputs.new_release_published == 'true') }}
         uses: docker/login-action@v3
         with:
           # we are using the github container registry
@@ -40,6 +55,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build to GitHub Container Registry
+        if: ${{ (steps.semantic-release.outputs.new_release_published == 'true') }}
         # use jib plugin to build docker image
         # If you want to change the base image (e.g. if you changed your java version)
         # change the Djib.from.image value. Tags can be found here
