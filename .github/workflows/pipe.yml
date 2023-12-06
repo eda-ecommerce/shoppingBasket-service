@@ -40,7 +40,7 @@ jobs:
             @semantic-release/git
         env:
           persist-credentials: false
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_PAT }}
 
       - name: convert repository name to lowercase
         if: ${{ (steps.semantic-release.outputs.new_release_published == 'true') }}
