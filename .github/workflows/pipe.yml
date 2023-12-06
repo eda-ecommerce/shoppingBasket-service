@@ -43,6 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_PAT }}
 
       - name: convert repository name to lowercase
+        id: repo-name
         if: ${{ (steps.semantic-release.outputs.new_release_published == 'true') }}
         run: |
           echo "REPO_LOWERCASE=${GITHUB_REPOSITORY,,}" >> ${GITHUB_OUTPUT}
