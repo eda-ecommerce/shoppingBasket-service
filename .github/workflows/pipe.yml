@@ -56,12 +56,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build to GitHub Container Registry
         if: ${{ (steps.semantic-release.outputs.new_release_published == 'true') }}
-
         # use jib plugin to build docker image
         # If you want to change the base image (e.g. if you changed your java version)
         # change the Djib.from.image value. Tags can be found here
         # https://hub.docker.com/_/eclipse-temurin?tab=tags
         run: >
           mvn compile com.google.cloud.tools:jib-maven-plugin:3.4.0:build
-          -Djib.to.image=ghcr.io/${REPO_LOWERCASE}:${{ steps.semantic-release.outputs.new_release_version }}
+          -Djib.to.image=ghcr.io/${{ steps.repo-name.outputs.REPO_LOWERCASE }}:${{ steps.semantic-release.outputs.new_release_version }}
           -Djib.from.image=eclipse-temurin:17-alpine
