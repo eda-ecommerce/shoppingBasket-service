@@ -35,3 +35,4 @@ services:
       MYSQL_PASSWORD: 'ifthiswastheproblemimgonnafreak'
       MYSQL_USER: 'yeetus'
       MYSQL_DATABASE: 'database'
+      MYSQL_ROOT_HOST: "%"
