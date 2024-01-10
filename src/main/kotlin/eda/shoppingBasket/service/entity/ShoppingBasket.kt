@@ -2,6 +2,7 @@ package eda.shoppingBasket.service.entity
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import java.util.UUID
 
 @Entity
@@ -11,5 +12,11 @@ class ShoppingBasket(
     @Id
     val shoppingBasketID: UUID = UUID.randomUUID()
 ) {
+    @OneToMany
+    val shoppingBasketItems: MutableList<ShoppingBasketItem> = mutableListOf()
+
+    fun getShoppingBasketTotal(): Float = totalPrice
+
+    fun numberOfItemsInShoppingBasket(): Int = shoppingBasketItems.size
 
 }
