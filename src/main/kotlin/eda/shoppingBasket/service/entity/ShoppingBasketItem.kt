@@ -17,4 +17,12 @@ class ShoppingBasketItem (
     val shoppingBasketItemID: UUID = UUID.randomUUID()
     )
 {
+    fun getShoppingBasketItemSubtotal(): Float {
+        return quantity * itemPrice
+    }
+
+    fun getItemAsAPair(): Pair<UUID, Int> {
+        return Pair(shoppingBasketItemID, quantity)
+    }
+
 }
