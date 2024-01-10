@@ -19,13 +19,13 @@ class CartTest {
     private val testShoppingBasket = ShoppingBasket(
         shoppingBasketID = testBasketUUID,
         customerID = randomUUID(),
-        totalPrice = 0.0
+        totalPrice = 0.0f
     )
 
     private val testItem = ShoppingBasketItem(
         shoppingBasket = testShoppingBasket,
         quantity = 1,
-        itemPrice = 1.0
+        itemPrice = 1.0f
     )
 
     init {

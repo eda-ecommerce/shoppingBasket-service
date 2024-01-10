@@ -10,9 +10,9 @@ import java.util.UUID
 @Entity
 class ShoppingBasketItem (
     @ManyToOne
-    val shoppingBasket: ShoppingBasket,
+    var shoppingBasket: ShoppingBasket,
     var quantity: Int = 0,
-    var itemPrice: Double,
+    var itemPrice: Float,
     @Id
     val shoppingBasketItemID: UUID = UUID.randomUUID()
     )

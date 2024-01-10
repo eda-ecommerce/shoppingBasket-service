@@ -7,7 +7,7 @@ import java.util.UUID
 @Entity
 class ShoppingBasket(
     val customerID: UUID,
-    var totalPrice: Double = 0.0,
+    var totalPrice: Float = 0.0f,
     @Id
     val shoppingBasketID: UUID = UUID.randomUUID()
 ) {

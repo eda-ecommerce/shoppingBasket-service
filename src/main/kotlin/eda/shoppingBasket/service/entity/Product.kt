@@ -6,7 +6,7 @@ import java.util.*
 
 @Entity
 data class Product(
-    val unitPrice: Double,
+    val unitPrice: Float,
     val name: String,
     @Id
     val productID: UUID

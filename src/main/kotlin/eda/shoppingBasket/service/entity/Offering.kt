@@ -8,8 +8,8 @@ import java.util.UUID
 @Entity
 class Offering(
     val name: String,
-    val unitPrice: Double,
-    val totalPrice: Double,
+    val unitPrice: Float,
+    val totalPrice: Float,
     @Id
     val offeringID: UUID,
     @ManyToOne
