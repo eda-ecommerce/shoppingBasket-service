@@ -141,7 +141,7 @@ class ControllerIntegrationTest {
     fun `test delete shopping basket by shopping basket id`() {
         shoppingBasketRepository.save(testShoppingBasket)
         testRestTemplate.delete("/shoppingBasket/${testShoppingBasket.shoppingBasketID}")
-        var response = testRestTemplate.getForEntity("/shoppingBasket/${testShoppingBasket.shoppingBasketID}", ShoppingBasketDTO::class.java)
+        val response = testRestTemplate.getForEntity("/shoppingBasket/${testShoppingBasket.shoppingBasketID}", ShoppingBasketDTO::class.java)
         assert(response != null)
         assert(response.statusCode == HttpStatus.NOT_FOUND)
         assert(response.hasBody())
