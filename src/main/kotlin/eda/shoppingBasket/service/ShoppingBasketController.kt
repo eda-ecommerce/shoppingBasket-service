@@ -4,21 +4,35 @@ import eda.shoppingBasket.service.dto.ShoppingBasketDTO
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import java.util.*
 
 @RestController
 class ShoppingBasketController (private val shoppingBasketService: ShoppingBasketService) {
 
+//    @ControllerAdvice
+//    public class RestExceptionHandler: ResponseEntityExceptionHandler() {
+//        @ExceptionHandler(value = [IllegalArgumentException::class])
+//        fun handleConflict(ex: IllegalArgumentException): ResponseEntity<String> {
+//            return ResponseEntity(ex.message, HttpStatus.BAD_REQUEST)
+//        }
+//
+//    }
+
     //creating a new shopping basket
     @PostMapping("/shoppingBasket")
-    fun createShoppingBasket(@RequestBody shoppingBasketDTO: ShoppingBasketDTO) : ResponseEntity<ShoppingBasketDTO> {
-        return ResponseEntity(shoppingBasketService.createShoppingBasket(shoppingBasketDTO), HttpStatus.CREATED)
-
+    fun createShoppingBasket(@RequestBody shoppingBasketDTO: ShoppingBasketDTO): ResponseEntity<out Any> {
+        return try {
+            ResponseEntity(shoppingBasketService.createShoppingBasket(shoppingBasketDTO), HttpStatus.CREATED)
+        } catch (e: Exception) {
+            ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
+        }
     }
 
     //creating a new shopping basket with a customerID
     @PostMapping("/shoppingBasket/{customerID}")
     fun createShoppingBasketWithCustomerID(@PathVariable customerID: UUID) : ResponseEntity<ShoppingBasketDTO> {
+        //TODO: we are not checking for the validity of the customer ID here, should we do that?
         return ResponseEntity(shoppingBasketService.createShoppingBasketWithCustomerID(customerID), HttpStatus.CREATED)
     }
 
@@ -45,6 +59,14 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
         return ResponseEntity(null, HttpStatus.NOT_FOUND)
     }
 
+    //getting a shopping basket by its ID
+    @GetMapping("/shoppingBasket/{shoppingBasketID}")
+    fun getShoppingBasketByID(@PathVariable shoppingBasketID: UUID): ResponseEntity<ShoppingBasketDTO> {
+        val shoppingBasketDTO = shoppingBasketService.getShoppingBasketDTO(shoppingBasketID)
+        if (shoppingBasketDTO != null)
+            return ResponseEntity(shoppingBasketDTO, HttpStatus.OK)
+        return ResponseEntity(null, HttpStatus.NOT_FOUND)
+    }
 
     //modifying the quantity of an offering in a shopping basket
     @PostMapping("/shoppingBasket/{shoppingBasketID}/{shoppingBasketItemID}/{newQuantity}")
