@@ -3,7 +3,7 @@ package eda.shoppingBasket.service.dto
 import java.util.UUID
 
 data class ShoppingBasketDTO(
-    val id: UUID? = null, //we might need this?
+    val id: UUID?, //we might need this?
     var shoppingBasketID: UUID,
     var customerID: UUID,
     var totalPrice: Float,
