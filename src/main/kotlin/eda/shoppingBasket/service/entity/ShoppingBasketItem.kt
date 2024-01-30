@@ -17,6 +17,9 @@ class ShoppingBasketItem (
     val shoppingBasketItemID: UUID = UUID.randomUUID()
     )
 {
+    @ManyToOne
+    lateinit var offering: Offering
+
     fun getShoppingBasketItemSubtotal(): Float {
         return quantity * itemPrice
     }
