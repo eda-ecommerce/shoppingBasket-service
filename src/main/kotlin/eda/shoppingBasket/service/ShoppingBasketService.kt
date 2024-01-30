@@ -29,6 +29,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
     }
 
     fun createShoppingBasketWithCustomerID(customerID: UUID): ShoppingBasketDTO {
+        //TODO: check if a customer with this customerID exists
         //check for existing shopping basket with the same customerID
         var found = shoppingBasketRepository.findByCustomerID(customerID)
         if (found != null) { //TODO: figure out why isPresent is throwing an error on my machine. just using != null for now
@@ -45,6 +46,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         if (shoppingBasket != null) {
             //get the offering from the offering repo, so that we can get the itemPrice
             val newOffering = offeringRepository.findById(offeringID).get()
+            if (newOffering == null) return null //tried to use an Elvis operator in the previous line, but it's greyed out for some reason. feel free to add it back if you want to
             val newShoppingBasketItem = ShoppingBasketItem(shoppingBasket = shoppingBasket, quantity = offeringAmount, itemPrice = newOffering.unitPrice)
             newShoppingBasketItem.shoppingBasket = shoppingBasket
             shoppingBasketItemRepository.save(newShoppingBasketItem)
