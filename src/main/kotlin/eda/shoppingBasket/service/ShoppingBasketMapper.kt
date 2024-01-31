@@ -3,6 +3,7 @@ package eda.shoppingBasket.service
 import eda.shoppingBasket.service.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.entity.ShoppingBasket
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class ShoppingBasketMapper {
@@ -10,6 +11,7 @@ class ShoppingBasketMapper {
     fun toDTO(shoppingBasket: ShoppingBasket): ShoppingBasketDTO {
 
         return ShoppingBasketDTO(
+            id = UUID.randomUUID(),
             shoppingBasketID = shoppingBasket.shoppingBasketID,
             customerID = shoppingBasket.customerID,
             totalPrice = shoppingBasket.totalPrice,
