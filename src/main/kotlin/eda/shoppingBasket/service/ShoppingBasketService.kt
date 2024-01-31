@@ -133,8 +133,13 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         return shoppingBasketRepository.findAll()
     }
 
-    fun deleteShoppingBasket(shoppingBasketID: UUID) {
-        shoppingBasketRepository.deleteById(shoppingBasketID)
+    fun deleteShoppingBasket(shoppingBasketID: UUID): Boolean {
+        var found = shoppingBasketRepository.findByShoppingBasketID(shoppingBasketID)
+        if (found != null) {
+            shoppingBasketRepository.deleteById(shoppingBasketID)
+            return true
+        }
+        return false
     }
 
     fun deleteAllShoppingBaskets() {
