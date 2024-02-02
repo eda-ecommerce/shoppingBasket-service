@@ -12,6 +12,7 @@ class ShoppingBasket(
     @Id
     val shoppingBasketID: UUID = UUID.randomUUID()
 ) {
+    //TODO: remove the bidirectional reference.
     @OneToMany
     val shoppingBasketItems: MutableList<ShoppingBasketItem> = mutableListOf()
 
