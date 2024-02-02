@@ -1,7 +1,7 @@
 version: '3.3'
 services:
-  eda-customer:
-    image: eda-customer
+  eda-shoppingBasket:
+    image: eda-shoppingBasket
     ports:
       - '8080:8080'
     environment:
