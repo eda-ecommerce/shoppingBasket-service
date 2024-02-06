@@ -17,7 +17,7 @@ class ShoppingBasketProducer(
         template.defaultTopic = SHOPPING_BASKET_TOPIC
         val message : Message<ShoppingBasketDTO> = MessageBuilder.withPayload(dto)
             .setHeader("topic", "shopping-basket")
-            .setHeader("operation", "$operation".lowercase())
+            .setHeader("operation", "$operation")
             .setHeader("source", "shopping-basket-service")
             .build()
         template.send(message)
