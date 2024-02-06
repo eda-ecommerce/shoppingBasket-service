@@ -21,7 +21,7 @@ spring:
     default-topic: embedded-test-topic
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
