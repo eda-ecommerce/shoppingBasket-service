@@ -2,6 +2,7 @@ package eda.shoppingBasket.service
 
 import com.ninjasquad.springmockk.MockkBean
 import eda.shoppingBasket.service.application.ShoppingBasketService
+import eda.shoppingBasket.service.eventing.ShoppingBasketProducer
 import eda.shoppingBasket.service.model.ShoppingBasketMapper
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.entity.Offering
@@ -37,6 +38,9 @@ class CartApplicationServiceTest {
     @MockkBean
     lateinit var offeringRepository: OfferingRepository
 
+    @MockkBean
+    lateinit var shoppingBasketProducer: ShoppingBasketProducer
+
     @Autowired
     lateinit var shoppingBasketService: ShoppingBasketService
 
@@ -53,6 +57,7 @@ class CartApplicationServiceTest {
         every { shoppingBasketItemRepository.findByIdOrNull(testShoppingBasketItemUUID) } returns testShoppingBasketItem
         every { offeringRepository.findByIdOrNull(testOfferingUUID) } returns testOffering
         every { shoppingBasketRepository.findByShoppingBasketID(any()) } returns testShoppingBasket
+        every { shoppingBasketProducer.sendMessage(any(),any()) } returns Unit
     }
 
     final val testShoppingBasket = ShoppingBasket(
