@@ -6,9 +6,8 @@ import java.util.*
 
 @Entity
 class Offering(
-    val name: String,
-    val unitPrice: Float,
-    val totalPrice: Float,
+    val quantity: Int,
+    val price: Float,
     @Id
     val offeringID: UUID
 

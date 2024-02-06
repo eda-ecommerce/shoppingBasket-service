@@ -67,9 +67,8 @@ class ControllerIntegrationTest {
 
     final val testOffering = Offering(
         offeringID = globalOfferingID,
-        name = "testOffering",
-        unitPrice = 1f,
-        totalPrice = 4f
+        quantity = 1,
+        price = 4f
     )
 
     final val testShoppingBasketItem = ShoppingBasketItem(

@@ -29,7 +29,7 @@ class ShoppingBasketItemService {
 
     fun addOfferingToShoppingBasket(shoppingBasket: ShoppingBasket, offeringID: UUID, offeringAmount: Int): ShoppingBasketItemDTO {
         val offering = offeringService.getOffering(offeringID)
-        val totalPrice = offering.totalPrice * offeringAmount
+        val totalPrice = offering.price * offeringAmount
         val shoppingBasketItem = ShoppingBasketItem(quantity = offeringAmount, shoppingBasket = shoppingBasket, offeringID = offeringID, totalPrice = totalPrice)
         shoppingBasketItemRepository.save(shoppingBasketItem)
         return shoppingBasketItemMapper.toDto(shoppingBasketItem)
@@ -52,7 +52,7 @@ class ShoppingBasketItemService {
 
     fun getSubtotal(shoppingBasketItem: ShoppingBasketItem): Float {
         val offering = offeringService.getOffering(shoppingBasketItem.offeringID)
-        return offering.totalPrice * shoppingBasketItem.quantity
+        return offering.price * shoppingBasketItem.quantity
     }
 
     fun getNumberOfItemsInShoppingBasket(shoppingBasket: ShoppingBasket): Int {

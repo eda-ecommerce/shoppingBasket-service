@@ -2,6 +2,8 @@ package eda.shoppingBasket.service.application
 
 import eda.shoppingBasket.service.application.exception.ShoppingBasketDuplicationException
 import eda.shoppingBasket.service.application.exception.ShoppingBasketNotFoundException
+import eda.shoppingBasket.service.eventing.SBOperation
+import eda.shoppingBasket.service.eventing.ShoppingBasketProducer
 import eda.shoppingBasket.service.model.ShoppingBasketMapper
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
@@ -22,6 +24,9 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
     @Autowired
     lateinit var itemService: ShoppingBasketItemService
 
+    @Autowired
+    private lateinit var producer: ShoppingBasketProducer
+
     final val logger = LoggerFactory.getLogger(ShoppingBasketService::class.java)
 
     fun createShoppingBasket(shoppingBasketDTO: ShoppingBasketDTO): ShoppingBasketDTO {
@@ -40,7 +45,9 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
                 items.add(itemService.addOfferingToShoppingBasket(newShoppingBasket, it.offeringID, it.quantity))
             }
         }
-        return shoppingBasketMapper.toDTO(newShoppingBasket, items)
+        val dto = shoppingBasketMapper.toDTO(newShoppingBasket, items)
+        producer.sendMessage(dto, SBOperation.CREATE)
+        return dto
     }
 
     fun createShoppingBasketWithCustomerID(customerID: UUID): ShoppingBasketDTO {
@@ -59,7 +66,9 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         val shoppingBasket = getShoppingBasket(shoppingBasketID)
         itemService.addOfferingToShoppingBasket(shoppingBasket, offeringID, offeringAmount)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
-        return shoppingBasketMapper.toDTO(shoppingBasket, items)
+        val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
+        producer.sendMessage(dto, SBOperation.UPDATE)
+        return dto
     }
 
     fun removeItemFromShoppingBasket(shoppingBasketID: UUID, shoppingBasketItemID: UUID): ShoppingBasketDTO? {

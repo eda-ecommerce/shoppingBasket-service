@@ -65,9 +65,8 @@ class CartApplicationServiceTest {
 
     final val testOffering = Offering(
         offeringID = testOfferingUUID,
-        name = "testOffering",
-        unitPrice = 5.6f,
-        totalPrice = 5.6f
+        quantity = 1,
+        price = 5.6f
     )
 
     final val testShoppingBasketItem = ShoppingBasketItem(
