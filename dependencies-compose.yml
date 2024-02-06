@@ -32,7 +32,7 @@ services:
       - '3306:3306'
     environment:
       MYSQL_ROOT_PASSWORD: 'verysecurepassword'
-      MYSQL_PASSWORD: 'ifthiswastheproblemimgonnafreak'
-      MYSQL_USER: 'yeetus'
+      MYSQL_PASSWORD: 'shopping-basket-service'
+      MYSQL_USER: 'shopping-basket-service'
       MYSQL_DATABASE: 'database'
       MYSQL_ROOT_HOST: "%"
