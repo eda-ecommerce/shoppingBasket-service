@@ -1,4 +1,4 @@
-package eda.shoppingBasket.service.entity
+package eda.shoppingBasket.service.model.entity
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -13,6 +13,7 @@ class Offering(
     val totalPrice: Float,
     @Id
     val offeringID: UUID
+
 ) {
 //    i've added a ManyToOne in ShoppingBasketItem instead of a OneToMany reference here
 //    @OneToMany
