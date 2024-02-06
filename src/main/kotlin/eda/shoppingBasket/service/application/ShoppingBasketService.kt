@@ -75,14 +75,18 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         val shoppingBasket = getShoppingBasket(shoppingBasketID)
         itemService.removeOfferingFromShoppingBasket(shoppingBasket, shoppingBasketItemID)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
-        return shoppingBasketMapper.toDTO(shoppingBasket, items)
+        val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
+        producer.sendMessage(dto, SBOperation.UPDATE)
+        return dto
     }
 
     fun modifyItemQuantity(shoppingBasketID: UUID, shoppingBasketItemID: UUID, newQuantity: Int): ShoppingBasketDTO {
         val shoppingBasket = getShoppingBasket(shoppingBasketID)
         itemService.changeQuantity(shoppingBasket, shoppingBasketItemID, newQuantity)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
-        return shoppingBasketMapper.toDTO(shoppingBasket, items)
+        val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
+        producer.sendMessage(dto, SBOperation.UPDATE)
+        return dto
     }
 
     fun getShoppingBasket(shoppingBasketID: UUID): ShoppingBasket {
@@ -116,6 +120,8 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         val found = shoppingBasketRepository.findByShoppingBasketID(shoppingBasketID)
         if (found != null) {
             shoppingBasketRepository.deleteById(shoppingBasketID)
+            val dto = shoppingBasketMapper.toDTO(found, mutableListOf())
+            producer.sendMessage(dto, SBOperation.DELETE)
             return true
         }
         return false
