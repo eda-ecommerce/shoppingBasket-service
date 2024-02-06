@@ -210,6 +210,7 @@ class ControllerIntegrationTest {
         Assertions.assertEquals(expected.customerID , actual.customerID)
         Assertions.assertEquals(expected.totalPrice , actual.totalPrice)
         Assertions.assertEquals(expected.totalItemQuantity , actual.totalItemQuantity)
+        Assertions.assertEquals(expected.shoppingBasketItems , actual.shoppingBasketItems)
     }
 
 }

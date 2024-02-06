@@ -1,12 +1,17 @@
 package eda.shoppingBasket.service
 
+import com.ninjasquad.springmockk.MockkBean
 import eda.shoppingBasket.service.application.OfferingService
+import eda.shoppingBasket.service.application.ShoppingBasketService
 import eda.shoppingBasket.service.eventing.OfferingConsumer
 import eda.shoppingBasket.service.eventing.SBOperation
 import eda.shoppingBasket.service.eventing.ShoppingBasketProducer
-import eda.shoppingBasket.service.eventing.TestShoppingBasketConsumer
 import eda.shoppingBasket.service.model.dto.OfferingDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
+import io.mockk.every
+import io.mockk.verify
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +25,7 @@ import org.springframework.messaging.support.MessageBuilder
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -28,13 +34,16 @@ import java.util.concurrent.TimeUnit
 @ExtendWith(SpringExtension::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class KafkaTests {
-    @Autowired
-    private lateinit var consumer: TestShoppingBasketConsumer
 
     @Autowired
     private lateinit var offeringConsumer: OfferingConsumer
 
-    @Autowired
+    @MockkBean
+    lateinit var shoppingBasketService: ShoppingBasketService
+
+    final val logger = org.slf4j.LoggerFactory.getLogger(this.javaClass)
+
+    @MockkBean
     lateinit var offeringService: OfferingService
 
     @Autowired
@@ -43,24 +52,56 @@ class KafkaTests {
     @Autowired
     private lateinit var producer: ShoppingBasketProducer
 
-    @KafkaListener(topics = ["shopping-basket"], groupId = "shopping-basket-service")
-    fun consume(message: ShoppingBasketDTO) {
-        println("Consumed message: $message")
-        throw Exception("Test")
+    @BeforeEach
+    fun setup(){
+        sbCountDownLatch = CountDownLatch(1)
+        offeringConsumer.resetLatch()
+        every { offeringService.saveOffering(any()) } returns Unit
+    }
+
+    var sbCountDownLatch = CountDownLatch(1)
+    var message: Message<ShoppingBasketDTO>? = null
+
+    @KafkaListener(topics = ["shopping-basket"])
+    fun consumeInMessageFormat(pMessage: Message<ShoppingBasketDTO>){
+        logger.info("Consumed message: $pMessage")
+        logger.info("Payload: ${pMessage.payload}")
+        pMessage.headers.forEach {
+            logger.info("Header: ${it.key} : ${it.value}")
+        }
+        sbCountDownLatch.countDown()
+        message = pMessage
     }
 
     @Test
-    fun testEmission(){
-        producer.sendMessage(ShoppingBasketDTO(
+    fun testEmissionCreated(){
+        val testDto = ShoppingBasketDTO(
             shoppingBasketID = UUID.randomUUID(),
             customerID = UUID.randomUUID(),
             totalPrice = 0.0f
-        ), SBOperation.CREATE)
-
-        val consumed = consumer.countDownLatch.await(10, TimeUnit.SECONDS)
+        )
+        producer.sendMessage(testDto, SBOperation.CREATE)
+        val consumed = sbCountDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
-        assert(consumer.message!=null)
-
+        assert(message!=null && message!!.headers["operation"] != null)
+        Assertions.assertEquals("${SBOperation.CREATE}", message!!.headers["operation"])
+        Assertions.assertEquals(testDto, message!!.payload)
+    }
+    @Test
+    fun testEmissionUpdated(){
+        val testDto = ShoppingBasketDTO(
+            shoppingBasketID = UUID.randomUUID(),
+            customerID = UUID.randomUUID(),
+            totalPrice = 0.0f,
+            shoppingBasketItems = mutableListOf(
+            )
+        )
+        producer.sendMessage(testDto, SBOperation.UPDATE)
+        val consumed = sbCountDownLatch.await(10, TimeUnit.SECONDS)
+        assert(consumed)
+        assert(message!=null && message!!.headers["operation"] != null)
+        Assertions.assertEquals("${SBOperation.UPDATE}", message!!.headers["operation"])
+        Assertions.assertEquals(testDto, message!!.payload)
     }
 
     @Test
@@ -76,11 +117,12 @@ class KafkaTests {
             .setHeader("topic", "offering")
             .setHeader("operation", "create")
             .setHeader("source", "offering-service")
+            .setHeader("!timestamp", System.currentTimeMillis())
             .build()
         template.defaultTopic = "offering"
         template.send(testMessage).join()
         val consumed = offeringConsumer.countDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
-        //TODO verify { offeringService.saveOffering(offeringDto) }
+        verify { offeringService.saveOffering(any()) }
     }
 }
