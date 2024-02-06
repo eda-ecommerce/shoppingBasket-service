@@ -18,9 +18,3 @@ class ShoppingBasketItem (
     var totalPrice: Float,
     var state: ItemState = ItemState.AVAILABLE
     )
-{
-    fun getItemAsAPair(): Pair<UUID, Int> {
-        return Pair(shoppingBasketItemID, quantity)
-    }
-
-}

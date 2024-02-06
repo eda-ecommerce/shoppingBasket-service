@@ -2,9 +2,7 @@ package eda.shoppingBasket.service.model.entity
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToMany
-import java.util.UUID
+import java.util.*
 
 @Entity
 class Offering(

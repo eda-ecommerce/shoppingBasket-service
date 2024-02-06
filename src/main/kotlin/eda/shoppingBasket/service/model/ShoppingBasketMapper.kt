@@ -3,7 +3,6 @@ package eda.shoppingBasket.service.model
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
 import eda.shoppingBasket.service.model.entity.ShoppingBasket
-import eda.shoppingBasket.service.model.entity.ShoppingBasketItem
 import org.springframework.stereotype.Component
 import java.util.*
 

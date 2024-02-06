@@ -9,7 +9,6 @@ import eda.shoppingBasket.service.model.entity.ShoppingBasketItem
 import eda.shoppingBasket.service.repository.OfferingRepository
 import eda.shoppingBasket.service.repository.ShoppingBasketItemRepository
 import eda.shoppingBasket.service.repository.ShoppingBasketRepository
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

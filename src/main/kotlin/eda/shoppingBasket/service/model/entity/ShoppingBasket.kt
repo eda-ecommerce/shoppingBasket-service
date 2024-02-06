@@ -1,10 +1,8 @@
 package eda.shoppingBasket.service.model.entity
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
-import java.util.UUID
+import java.util.*
 
 @Entity
 class ShoppingBasket(
