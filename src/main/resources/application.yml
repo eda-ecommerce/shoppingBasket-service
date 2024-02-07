@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: "dev"
+    active: "prod"
   main:
     banner-mode: "off"
 ---
@@ -50,7 +50,7 @@ spring:
     activate:
       on-profile: "prod"
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:localhost:29092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:redpanda:9093}
     consumer:
       auto-offset-reset: earliest
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
@@ -71,7 +71,7 @@ spring:
     default-topic: embedded-test-topic
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
