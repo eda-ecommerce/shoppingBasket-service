@@ -31,18 +31,18 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
 
     fun createShoppingBasket(shoppingBasketDTO: ShoppingBasketDTO): ShoppingBasketDTO {
         //check for existing shopping basket
-        if (shoppingBasketDTO.shoppingBasketID != null) {
-            val found = shoppingBasketRepository.findByShoppingBasketID(shoppingBasketDTO.shoppingBasketID!!)
+        if (shoppingBasketDTO.shoppingBasketId != null) {
+            val found = shoppingBasketRepository.findByShoppingBasketID(shoppingBasketDTO.shoppingBasketId!!)
             if (found != null) {
-                throw ShoppingBasketDuplicationException("Shopping basket with id ${shoppingBasketDTO.shoppingBasketID} already exists.")
+                throw ShoppingBasketDuplicationException("Shopping basket with id ${shoppingBasketDTO.shoppingBasketId} already exists.")
             }
         }
         val newShoppingBasket = shoppingBasketMapper.toEntity(shoppingBasketDTO)
         val items = mutableListOf<ShoppingBasketItemDTO>()
         shoppingBasketRepository.save(newShoppingBasket)
-        if (shoppingBasketDTO.shoppingBasketItems.isNotEmpty()){
-            shoppingBasketDTO.shoppingBasketItems.forEach {
-                items.add(itemService.addOfferingToShoppingBasket(newShoppingBasket, it.offeringID, it.quantity))
+        if (shoppingBasketDTO.items.isNotEmpty()){
+            shoppingBasketDTO.items.forEach {
+                items.add(itemService.addOfferingToShoppingBasket(newShoppingBasket, it.offeringId, it.quantity))
             }
         }
         val dto = shoppingBasketMapper.toDTO(newShoppingBasket, items)

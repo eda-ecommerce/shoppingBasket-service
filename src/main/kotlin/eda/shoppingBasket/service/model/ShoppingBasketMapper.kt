@@ -12,17 +12,17 @@ class ShoppingBasketMapper {
     fun toDTO(shoppingBasket: ShoppingBasket, shoppingBasketItems: List<ShoppingBasketItemDTO>): ShoppingBasketDTO {
 
         return ShoppingBasketDTO(
-            shoppingBasketID = shoppingBasket.shoppingBasketID,
-            customerID = shoppingBasket.customerID,
+            shoppingBasketId = shoppingBasket.shoppingBasketID,
+            customerId = shoppingBasket.customerID,
             totalPrice = shoppingBasketItems.map { it.totalPrice }.sum(),
             totalItemQuantity = shoppingBasketItems.size,
-            shoppingBasketItems = shoppingBasketItems)
+            items = shoppingBasketItems)
     }
 
     fun toEntity(shoppingBasketDTO: ShoppingBasketDTO): ShoppingBasket {
         return ShoppingBasket(
-            shoppingBasketID = shoppingBasketDTO.shoppingBasketID?: UUID.randomUUID(),
-            customerID = shoppingBasketDTO.customerID?: UUID.randomUUID(),
+            shoppingBasketID = shoppingBasketDTO.shoppingBasketId?: UUID.randomUUID(),
+            customerID = shoppingBasketDTO.customerId?: UUID.randomUUID(),
             totalPrice = shoppingBasketDTO.totalPrice
         )
 

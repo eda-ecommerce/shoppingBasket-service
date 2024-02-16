@@ -80,26 +80,26 @@ class ControllerIntegrationTest {
     )
 
     final val testShoppingBasketItemDTO = ShoppingBasketItemDTO(
-        shoppingBasketID = testShoppingBasketItem.shoppingBasket.shoppingBasketID,
-        offeringID = testShoppingBasketItem.offeringID,
+        shoppingBasketId = testShoppingBasketItem.shoppingBasket.shoppingBasketID,
+        offeringId = testShoppingBasketItem.offeringID,
         totalPrice = testShoppingBasketItem.totalPrice,
         itemState = testShoppingBasketItem.state,
         quantity = testShoppingBasketItem.quantity
     )
 
     final val fullTestShoppingBasketDTO = ShoppingBasketDTO(
-        shoppingBasketID = fullTestShoppingBasket.shoppingBasketID,
-        customerID = fullTestShoppingBasket.customerID,
+        shoppingBasketId = fullTestShoppingBasket.shoppingBasketID,
+        customerId = fullTestShoppingBasket.customerID,
         totalPrice = fullTestShoppingBasket.totalPrice,
         totalItemQuantity = 1,
-        shoppingBasketItems = mutableListOf(testShoppingBasketItemDTO)
+        items = mutableListOf(testShoppingBasketItemDTO)
     )
     final val emptyTestShoppingBasketDTO = ShoppingBasketDTO(
-        shoppingBasketID = emptyTestShoppingBasket.shoppingBasketID,
-        customerID = emptyTestShoppingBasket.customerID,
+        shoppingBasketId = emptyTestShoppingBasket.shoppingBasketID,
+        customerId = emptyTestShoppingBasket.customerID,
         totalPrice = emptyTestShoppingBasket.totalPrice,
         totalItemQuantity = 0,
-        shoppingBasketItems = mutableListOf()
+        items = mutableListOf()
     )
 
     @BeforeEach
@@ -159,7 +159,7 @@ class ControllerIntegrationTest {
         assert(response != null)
         Assertions.assertEquals(HttpStatus.CREATED,response.statusCode)
         assert(response.hasBody())
-        println(response.body?.shoppingBasketItems)
+        println(response.body?.items)
         assertDtoEqualsDto(response.body!!, fullTestShoppingBasketDTO)
     }
 
@@ -206,11 +206,11 @@ class ControllerIntegrationTest {
     }
 
     fun assertDtoEqualsDto(actual: ShoppingBasketDTO, expected: ShoppingBasketDTO) {
-        Assertions.assertEquals(expected.shoppingBasketID , actual.shoppingBasketID)
-        Assertions.assertEquals(expected.customerID , actual.customerID)
+        Assertions.assertEquals(expected.shoppingBasketId , actual.shoppingBasketId)
+        Assertions.assertEquals(expected.customerId , actual.customerId)
         Assertions.assertEquals(expected.totalPrice , actual.totalPrice)
         Assertions.assertEquals(expected.totalItemQuantity , actual.totalItemQuantity)
-        Assertions.assertEquals(expected.shoppingBasketItems , actual.shoppingBasketItems)
+        Assertions.assertEquals(expected.items , actual.items)
     }
 
 }

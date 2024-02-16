@@ -76,8 +76,8 @@ class KafkaTests {
     @Test
     fun testEmissionCreated(){
         val testDto = ShoppingBasketDTO(
-            shoppingBasketID = UUID.randomUUID(),
-            customerID = UUID.randomUUID(),
+            shoppingBasketId = UUID.randomUUID(),
+            customerId = UUID.randomUUID(),
             totalPrice = 0.0f
         )
         producer.sendMessage(testDto, SBOperation.CREATED)
@@ -90,10 +90,10 @@ class KafkaTests {
     @Test
     fun testEmissionUpdated(){
         val testDto = ShoppingBasketDTO(
-            shoppingBasketID = UUID.randomUUID(),
-            customerID = UUID.randomUUID(),
+            shoppingBasketId = UUID.randomUUID(),
+            customerId = UUID.randomUUID(),
             totalPrice = 0.0f,
-            shoppingBasketItems = mutableListOf(
+            items = mutableListOf(
             )
         )
         producer.sendMessage(testDto, SBOperation.UPDATED)

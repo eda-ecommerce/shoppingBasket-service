@@ -9,8 +9,8 @@ class ShoppingBasketItemMapper {
 
     fun toDto(shoppingBasketItem: ShoppingBasketItem): ShoppingBasketItemDTO {
         return ShoppingBasketItemDTO(
-            shoppingBasketID = shoppingBasketItem.shoppingBasket.shoppingBasketID,
-            offeringID = shoppingBasketItem.offeringID,
+            shoppingBasketId = shoppingBasketItem.shoppingBasket.shoppingBasketID,
+            offeringId = shoppingBasketItem.offeringID,
             quantity = shoppingBasketItem.quantity,
             totalPrice = shoppingBasketItem.totalPrice,
             itemState = shoppingBasketItem.state

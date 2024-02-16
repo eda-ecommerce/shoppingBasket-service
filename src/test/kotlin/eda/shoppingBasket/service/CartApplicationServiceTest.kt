@@ -83,18 +83,18 @@ class CartApplicationServiceTest {
     )
 
     fun equalsTestShoppingBasketDto(givenDTO: ShoppingBasketDTO, compareTo: ShoppingBasket) {
-        Assertions.assertEquals(givenDTO.shoppingBasketID, emptyTestShoppingBasketDTO.shoppingBasketID)
-        Assertions.assertEquals(givenDTO.customerID, emptyTestShoppingBasketDTO.customerID)
+        Assertions.assertEquals(givenDTO.shoppingBasketId, emptyTestShoppingBasketDTO.shoppingBasketId)
+        Assertions.assertEquals(givenDTO.customerId, emptyTestShoppingBasketDTO.customerId)
         Assertions.assertEquals(givenDTO.totalPrice, emptyTestShoppingBasketDTO.totalPrice)
         Assertions.assertEquals(givenDTO.totalItemQuantity,emptyTestShoppingBasketDTO.totalItemQuantity)
     }
 
     fun equalsTestShoppingBasketDto(givenDTO: ShoppingBasketDTO, compareTo: ShoppingBasketDTO) {
-        assert(givenDTO.shoppingBasketID == compareTo.shoppingBasketID)
-        assert(givenDTO.customerID == compareTo.customerID)
+        assert(givenDTO.shoppingBasketId == compareTo.shoppingBasketId)
+        assert(givenDTO.customerId == compareTo.customerId)
         assert(givenDTO.totalPrice == compareTo.totalPrice)
         assert(givenDTO.totalItemQuantity == compareTo.totalItemQuantity)
-        assert(givenDTO.shoppingBasketItems == compareTo.shoppingBasketItems)
+        assert(givenDTO.items == compareTo.items)
     }
 
     fun equalsTestShoppingBasket(givenShoppingBasket: ShoppingBasket) {
