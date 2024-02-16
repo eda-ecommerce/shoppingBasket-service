@@ -46,7 +46,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
             }
         }
         val dto = shoppingBasketMapper.toDTO(newShoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.CREATE)
+        producer.sendMessage(dto, SBOperation.CREATED)
         return dto
     }
 
@@ -67,7 +67,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         itemService.addOfferingToShoppingBasket(shoppingBasket, offeringID, offeringAmount)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
         val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.UPDATE)
+        producer.sendMessage(dto, SBOperation.UPDATED)
         return dto
     }
 
@@ -76,7 +76,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         itemService.removeOfferingFromShoppingBasket(shoppingBasket, shoppingBasketItemID)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
         val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.UPDATE)
+        producer.sendMessage(dto, SBOperation.UPDATED)
         return dto
     }
 
@@ -85,7 +85,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         itemService.changeQuantity(shoppingBasket, shoppingBasketItemID, newQuantity)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
         val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.UPDATE)
+        producer.sendMessage(dto, SBOperation.UPDATED)
         return dto
     }
 
@@ -121,7 +121,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         if (found != null) {
             shoppingBasketRepository.deleteById(shoppingBasketID)
             val dto = shoppingBasketMapper.toDTO(found, mutableListOf())
-            producer.sendMessage(dto, SBOperation.DELETE)
+            producer.sendMessage(dto, SBOperation.DELETED)
             return true
         }
         return false

@@ -144,10 +144,10 @@
 				<version>3.4.0</version>
 				<configuration>
 					<to>
-						<image>eda-shoppingBasket</image>
+						<image>eda-shoppingbasket</image>
 					</to>
 					<from>
-						<image>eclipse-temurin:17-alpine</image>
+						<image>eclipse-temurin:17-jdk-alpine</image>
 					</from>
 					<container>
 						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>

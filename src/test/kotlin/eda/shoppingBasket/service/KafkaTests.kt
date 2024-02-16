@@ -80,11 +80,11 @@ class KafkaTests {
             customerID = UUID.randomUUID(),
             totalPrice = 0.0f
         )
-        producer.sendMessage(testDto, SBOperation.CREATE)
+        producer.sendMessage(testDto, SBOperation.CREATED)
         val consumed = sbCountDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
         assert(message!=null && message!!.headers["operation"] != null)
-        Assertions.assertEquals("${SBOperation.CREATE}", message!!.headers["operation"])
+        Assertions.assertEquals("${SBOperation.CREATED}", message!!.headers["operation"])
         Assertions.assertEquals(testDto, message!!.payload)
     }
     @Test
@@ -96,11 +96,11 @@ class KafkaTests {
             shoppingBasketItems = mutableListOf(
             )
         )
-        producer.sendMessage(testDto, SBOperation.UPDATE)
+        producer.sendMessage(testDto, SBOperation.UPDATED)
         val consumed = sbCountDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
         assert(message!=null && message!!.headers["operation"] != null)
-        Assertions.assertEquals("${SBOperation.UPDATE}", message!!.headers["operation"])
+        Assertions.assertEquals("${SBOperation.UPDATED}", message!!.headers["operation"])
         Assertions.assertEquals(testDto, message!!.payload)
     }
 
