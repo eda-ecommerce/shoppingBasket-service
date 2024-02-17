@@ -12,21 +12,11 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS}
     consumer:
       auto-offset-reset: earliest
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      properties:
-        spring:
-          json:
-            value.use.type.headers: false
-            trusted:
-              packages: "*"
-          deserializer:
-            value:
-              delegate:
-                class: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: shopping-basket-service
     producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer:  org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
     default-topic: embedded-test-topic
   jpa:
@@ -54,21 +44,11 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:redpanda:9093}
     consumer:
       auto-offset-reset: earliest
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      properties:
-        spring:
-          json:
-            value.use.type.headers: true
-            trusted:
-              packages: "*"
-          deserializer:
-            value:
-              delegate:
-                class: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: shopping-basket-service
     producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer:  org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
     default-topic: embedded-test-topic
   jpa:
@@ -96,16 +76,7 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:localhost:29092}
     consumer:
       auto-offset-reset: earliest
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: "*"
-          deserializer:
-            value:
-              delegate:
-                class: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: shopping-basket-service
     producer:

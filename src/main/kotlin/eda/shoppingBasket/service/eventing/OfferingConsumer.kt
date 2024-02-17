@@ -1,13 +1,9 @@
 package eda.shoppingBasket.service.eventing
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.Gson
 import eda.shoppingBasket.service.application.OfferingService
-import eda.shoppingBasket.service.model.dto.OfferingDTO
-import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
-import eda.shoppingBasket.service.model.entity.Offering
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.header.Header
-import org.apache.kafka.common.header.Headers
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.annotation.KafkaListener
@@ -44,10 +40,11 @@ class OfferingConsumer {
             }
         }
     }
-
     @KafkaListener(topics = ["offering"])
-    fun offeringJsonListener(message: ConsumerRecord<String, String>){
-        val payload = jacksonObjectMapper().readValue(message.value(), OfferingEvent::class.java)
+    fun offeringJsonListener(message: ConsumerRecord<Any, Any>){
+        logger.info("Offering message received: ${message.value()}")
+        val payload =  message.value().toString()
+        val event = Gson().fromJson(payload, OfferingEvent::class.java)
         val headers = message.headers()
         headers.forEach { header: Header ->
             logger.info("Header: ${header.key()} : ${header.value()}")
@@ -56,12 +53,12 @@ class OfferingConsumer {
                     val operation = header.value().toString()
                     when(operation){
                         "delete" -> {
-                            offeringService.deleteOffering(payload.id)
+                            offeringService.deleteOffering(event.id)
                             countDownLatch.countDown()
                             return
                         }
                         else -> {
-                            offeringService.saveOffering(payload)
+                            offeringService.saveOffering(event)
                             countDownLatch.countDown()
                             return
                         }

@@ -5,15 +5,10 @@ import com.fasterxml.jackson.annotation.JsonValue
 import java.util.UUID
 
 data class OfferingEvent(
-    @JsonProperty("id")
     val id: UUID,
-    @JsonProperty("status")
     val status: Status,
-    @JsonProperty("quantity")
     val quantity: Int,
-    @JsonProperty("price")
     val price: Float,
-    @JsonProperty("product")
     val product: Product
 ) {
     enum class Status {
@@ -23,9 +18,7 @@ data class OfferingEvent(
         }
     }
     data class Product(
-        @JsonProperty("id")
         val id: UUID,
-        @JsonProperty("status")
         val status: String
     )
 }

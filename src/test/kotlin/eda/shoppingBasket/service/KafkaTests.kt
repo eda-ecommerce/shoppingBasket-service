@@ -1,6 +1,7 @@
 package eda.shoppingBasket.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.Gson
 import com.ninjasquad.springmockk.MockkBean
 import eda.shoppingBasket.service.application.OfferingService
 import eda.shoppingBasket.service.application.ShoppingBasketService
@@ -14,7 +15,10 @@ import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.repository.OfferingRepository
 import io.mockk.every
 import io.mockk.verify
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.header.Header
+import org.apache.kafka.common.header.Headers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
@@ -43,7 +48,7 @@ class KafkaTests {
     @Autowired
     private lateinit var offeringConsumer: OfferingConsumer
 
-    @MockkBean
+    @Autowired
     lateinit var offeringRepository: OfferingRepository
 
     final val logger = org.slf4j.LoggerFactory.getLogger(this.javaClass)
@@ -61,21 +66,25 @@ class KafkaTests {
     fun setup(){
         sbCountDownLatch = CountDownLatch(1)
         offeringConsumer.resetLatch()
+        offeringRepository.deleteAll()
         //every { offeringService.saveOffering(any()) } returns Unit
     }
 
     var sbCountDownLatch = CountDownLatch(1)
-    var message: Message<ShoppingBasketDTO>? = null
+    var message: ShoppingBasketDTO? = null
+    var headers: Array<Header>? = null
 
     @KafkaListener(topics = ["shopping-basket"])
-    fun consumeInMessageFormat(pMessage: Message<ShoppingBasketDTO>){
+    fun consumeInMessageFormat(pMessage: ConsumerRecord<String,String>){
         logger.info("Consumed message: $pMessage")
-        logger.info("Payload: ${pMessage.payload}")
-        pMessage.headers.forEach {
-            logger.info("Header: ${it.key} : ${it.value}")
+        logger.info("Payload: ${pMessage.value()}")
+        val dto = Gson().fromJson(pMessage.value(), ShoppingBasketDTO::class.java)
+        pMessage.headers().forEach {
+            logger.info("Header: ${it.key()} : ${it.value()}")
         }
+        headers = pMessage.headers().toArray()
         sbCountDownLatch.countDown()
-        message = pMessage
+        message = dto
     }
 
     @Test
@@ -88,9 +97,9 @@ class KafkaTests {
         producer.sendMessage(testDto, SBOperation.CREATED)
         val consumed = sbCountDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
-        assert(message!=null && message!!.headers["operation"] != null)
-        Assertions.assertEquals("${SBOperation.CREATED}", message!!.headers["operation"])
-        Assertions.assertEquals(testDto, message!!.payload)
+        assert(message!=null && headers != null)
+        Assertions.assertEquals("${SBOperation.CREATED}", String(headers!!.find { it.key().equals("operation") }!!.value()))
+        Assertions.assertEquals(testDto, message)
     }
     @Test
     fun testEmissionUpdated(){
@@ -104,32 +113,25 @@ class KafkaTests {
         producer.sendMessage(testDto, SBOperation.UPDATED)
         val consumed = sbCountDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
-        assert(message!=null && message!!.headers["operation"] != null)
-        Assertions.assertEquals("${SBOperation.UPDATED}", message!!.headers["operation"])
-        Assertions.assertEquals(testDto, message!!.payload)
+        assert(message!=null && headers != null)
+        Assertions.assertEquals("${SBOperation.UPDATED}", String(headers!!.find { it.key().equals("operation") }!!.value()))
+        Assertions.assertEquals(testDto, message)
     }
 
     @Test
     fun consumeOfferingMessage(){
+        val eventString = "{\n" +
+                "    \"id\": \"ed672bdf-831c-437f-ad41-d89ac2f398a4\",\n" +
+                "    \"status\": \"active\",\n" +
+                "    \"quantity\": 5,\n" +
+                "    \"price\": 10,\n" +
+                "    \"product\": {\n" +
+                "        \"id\": \"5de3949d-b496-4aa8-a99b-3d806b8e347f\",\n" +
+                "        \"status\": \"active\"\n" +
+                "    }\n" +
+                "}"
 
-        val offeringDto = OfferingDTO(
-            id = UUID.randomUUID(),
-            quantity = 1,
-            price = 1f,
-            productID = UUID.randomUUID()
-        )
-        val offeringEvent = OfferingEvent(
-            id = offeringDto.id,
-            quantity = offeringDto.quantity,
-            price = offeringDto.price,
-            product = OfferingEvent.Product(
-                id = offeringDto.productID,
-                status = "active"
-            ),
-            status = OfferingEvent.Status.ACTIVE
-        )
-        every { offeringRepository.save(any()) } returns OfferingMapper().toEntity(offeringDto)
-        val testRecord = ProducerRecord<String, String>("offering", jacksonObjectMapper().writeValueAsString(offeringEvent)).apply {
+        val testRecord = ProducerRecord<String, String>("offering", eventString).apply {
             headers().add("operation", "create".toByteArray())
             headers().add("source", "offering-service".toByteArray())
             headers().add("timestamp", System.currentTimeMillis().toString().toByteArray())
@@ -137,6 +139,7 @@ class KafkaTests {
         template.send(testRecord).join()
         val consumed = offeringConsumer.countDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
-        verify { offeringRepository.save(OfferingMapper().toEntity(offeringDto)) }
+        val savedOffering = offeringRepository.findById(UUID.fromString("ed672bdf-831c-437f-ad41-d89ac2f398a4"))
+        Assertions.assertEquals(UUID.fromString("ed672bdf-831c-437f-ad41-d89ac2f398a4"), savedOffering.get().offeringID)
     }
 }
