@@ -19,6 +19,7 @@ class ShoppingBasketProducer(
             .setHeader("topic", "shopping-basket")
             .setHeader("operation", "$operation")
             .setHeader("source", "shopping-basket-service")
+            .setHeader("!timestamp", System.currentTimeMillis())
             .build()
         template.send(message)
     }

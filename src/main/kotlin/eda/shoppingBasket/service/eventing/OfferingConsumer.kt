@@ -25,7 +25,7 @@ class OfferingConsumer {
     var countDownLatch = CountDownLatch(1)
 
     @KafkaListener(topics = ["offering"])
-    fun offeringListener(message: Message<OfferingDTO>){
+    fun offeringListener(message: Message<OfferingEvent>){
         logger.info("Offering message received: $message")
         if (message.headers.containsKey("operation")){
             val operation = message.headers["operation"]?.toString()

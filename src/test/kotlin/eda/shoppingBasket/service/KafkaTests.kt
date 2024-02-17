@@ -4,10 +4,13 @@ import com.ninjasquad.springmockk.MockkBean
 import eda.shoppingBasket.service.application.OfferingService
 import eda.shoppingBasket.service.application.ShoppingBasketService
 import eda.shoppingBasket.service.eventing.OfferingConsumer
+import eda.shoppingBasket.service.eventing.OfferingEvent
 import eda.shoppingBasket.service.eventing.SBOperation
 import eda.shoppingBasket.service.eventing.ShoppingBasketProducer
+import eda.shoppingBasket.service.model.OfferingMapper
 import eda.shoppingBasket.service.model.dto.OfferingDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
+import eda.shoppingBasket.service.repository.OfferingRepository
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions
@@ -39,11 +42,11 @@ class KafkaTests {
     private lateinit var offeringConsumer: OfferingConsumer
 
     @MockkBean
-    lateinit var shoppingBasketService: ShoppingBasketService
+    lateinit var offeringRepository: OfferingRepository
 
     final val logger = org.slf4j.LoggerFactory.getLogger(this.javaClass)
 
-    @MockkBean
+    @Autowired
     lateinit var offeringService: OfferingService
 
     @Autowired
@@ -56,7 +59,7 @@ class KafkaTests {
     fun setup(){
         sbCountDownLatch = CountDownLatch(1)
         offeringConsumer.resetLatch()
-        every { offeringService.saveOffering(any()) } returns Unit
+        //every { offeringService.saveOffering(any()) } returns Unit
     }
 
     var sbCountDownLatch = CountDownLatch(1)
@@ -106,14 +109,26 @@ class KafkaTests {
 
     @Test
     fun consumeOfferingMessage(){
+
         val offeringDto = OfferingDTO(
             id = UUID.randomUUID(),
             quantity = 1,
             price = 1f,
             productID = UUID.randomUUID()
         )
-        val testMessage: Message<OfferingDTO> = MessageBuilder
-            .withPayload(offeringDto)
+        val offeringEvent = OfferingEvent(
+            id = offeringDto.id,
+            quantity = offeringDto.quantity,
+            price = offeringDto.price,
+            product = OfferingEvent.Product(
+                id = offeringDto.productID,
+                status = "active"
+            ),
+            status = OfferingEvent.Status.ACTIVE
+        )
+        every { offeringRepository.save(any()) } returns OfferingMapper().toEntity(offeringDto)
+        val testMessage: Message<OfferingEvent> = MessageBuilder
+            .withPayload(offeringEvent)
             .setHeader("topic", "offering")
             .setHeader("operation", "create")
             .setHeader("source", "offering-service")
@@ -123,6 +138,6 @@ class KafkaTests {
         template.send(testMessage).join()
         val consumed = offeringConsumer.countDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
-        verify { offeringService.saveOffering(any()) }
+        verify { offeringRepository.save(OfferingMapper().toEntity(offeringDto)) }
     }
 }

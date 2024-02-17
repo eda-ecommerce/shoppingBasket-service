@@ -1,6 +1,7 @@
 package eda.shoppingBasket.service.application
 
 import eda.shoppingBasket.service.application.exception.OfferingNotFoundException
+import eda.shoppingBasket.service.eventing.OfferingEvent
 import eda.shoppingBasket.service.model.OfferingMapper
 import eda.shoppingBasket.service.model.dto.OfferingDTO
 import eda.shoppingBasket.service.model.entity.Offering
@@ -17,7 +18,7 @@ class OfferingService {
 
     private val offeringMapper: OfferingMapper = OfferingMapper()
 
-    fun saveOffering(offering: OfferingDTO){
+    fun saveOffering(offering: OfferingEvent){
         offeringRepository.save(offeringMapper.toEntity(offering))
     }
 
