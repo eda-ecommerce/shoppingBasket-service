@@ -1,5 +1,6 @@
 package eda.shoppingBasket.service
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import eda.shoppingBasket.service.application.OfferingService
 import eda.shoppingBasket.service.application.ShoppingBasketService
@@ -13,6 +14,7 @@ import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.repository.OfferingRepository
 import io.mockk.every
 import io.mockk.verify
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,7 +52,7 @@ class KafkaTests {
     lateinit var offeringService: OfferingService
 
     @Autowired
-    lateinit var template: KafkaTemplate<String, OfferingDTO>
+    lateinit var template: KafkaTemplate<String, String>
 
     @Autowired
     private lateinit var producer: ShoppingBasketProducer
@@ -127,15 +129,12 @@ class KafkaTests {
             status = OfferingEvent.Status.ACTIVE
         )
         every { offeringRepository.save(any()) } returns OfferingMapper().toEntity(offeringDto)
-        val testMessage: Message<OfferingEvent> = MessageBuilder
-            .withPayload(offeringEvent)
-            .setHeader("topic", "offering")
-            .setHeader("operation", "create")
-            .setHeader("source", "offering-service")
-            .setHeader("!timestamp", System.currentTimeMillis())
-            .build()
-        template.defaultTopic = "offering"
-        template.send(testMessage).join()
+        val testRecord = ProducerRecord<String, String>("offering", jacksonObjectMapper().writeValueAsString(offeringEvent)).apply {
+            headers().add("operation", "create".toByteArray())
+            headers().add("source", "offering-service".toByteArray())
+            headers().add("timestamp", System.currentTimeMillis().toString().toByteArray())
+        }
+        template.send(testRecord).join()
         val consumed = offeringConsumer.countDownLatch.await(10, TimeUnit.SECONDS)
         assert(consumed)
         verify { offeringRepository.save(OfferingMapper().toEntity(offeringDto)) }

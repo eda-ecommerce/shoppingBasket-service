@@ -1,5 +1,6 @@
 package eda.shoppingBasket.service.eventing
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import eda.shoppingBasket.service.application.OfferingService
 import eda.shoppingBasket.service.model.dto.OfferingDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
@@ -24,7 +25,7 @@ class OfferingConsumer {
 
     var countDownLatch = CountDownLatch(1)
 
-    @KafkaListener(topics = ["offering"])
+    //@KafkaListener(topics = ["offering"])
     fun offeringListener(message: Message<OfferingEvent>){
         logger.info("Offering message received: $message")
         if (message.headers.containsKey("operation")){
@@ -39,6 +40,32 @@ class OfferingConsumer {
                     offeringService.saveOffering(message.payload)
                     countDownLatch.countDown()
                     return
+                }
+            }
+        }
+    }
+
+    @KafkaListener(topics = ["offering"])
+    fun offeringJsonListener(message: ConsumerRecord<String, String>){
+        val payload = jacksonObjectMapper().readValue(message.value(), OfferingEvent::class.java)
+        val headers = message.headers()
+        headers.forEach { header: Header ->
+            logger.info("Header: ${header.key()} : ${header.value()}")
+            when (header.key()) {
+                "operation" -> {
+                    val operation = header.value().toString()
+                    when(operation){
+                        "delete" -> {
+                            offeringService.deleteOffering(payload.id)
+                            countDownLatch.countDown()
+                            return
+                        }
+                        else -> {
+                            offeringService.saveOffering(payload)
+                            countDownLatch.countDown()
+                            return
+                        }
+                    }
                 }
             }
         }

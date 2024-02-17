@@ -58,7 +58,7 @@ spring:
       properties:
         spring:
           json:
-            value.use.type.headers: false
+            value.use.type.headers: true
             trusted:
               packages: "*"
           deserializer:
