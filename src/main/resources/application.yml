@@ -1,9 +1,12 @@
 spring:
   profiles:
-    active: "prod"
+    active: "dev"
   main:
     banner-mode: "off"
 ---
+springdoc:
+  swagger-ui:
+    use-root-path: true
 spring:
   config:
     activate:
@@ -36,6 +39,9 @@ spring:
     init:
       mode: always
 ---
+springdoc:
+  swagger-ui:
+    use-root-path: true
 spring:
   config:
     activate:
