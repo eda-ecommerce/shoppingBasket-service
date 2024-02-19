@@ -3,6 +3,7 @@ package eda.shoppingBasket.service.web
 import eda.shoppingBasket.service.application.ShoppingBasketService
 import eda.shoppingBasket.service.model.dto.OfferingInBasketDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -10,7 +11,7 @@ import java.util.*
 
 @RestController
 class ShoppingBasketController (private val shoppingBasketService: ShoppingBasketService) {
-
+    @Operation(summary = "Create a new shopping basket")
     //creating a new shopping basket
     @PostMapping("/shoppingBasket")
     fun createShoppingBasket(@RequestBody shoppingBasketDTO: ShoppingBasketDTO): ResponseEntity<out Any> {
@@ -24,7 +25,7 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
     }
 
     //adding an offering to a shopping basket
-    //
+    @Operation(summary = "Add an offering to a shopping basket")
     @PostMapping("/shoppingBasket/{shoppingBasketID}/addOffering") // POST /shoppingBasket/81765f-128512-f1238/81765f-128512-f1238/2
     fun addOfferingToShoppingBasket(@RequestBody offeringInBasketDTO: OfferingInBasketDTO, @PathVariable shoppingBasketID: UUID): ResponseEntity<ShoppingBasketDTO> {
         val savedShoppingBasketDTO = shoppingBasketService.addOfferingToShoppingBasket(shoppingBasketID, offeringInBasketDTO.offeringID, offeringInBasketDTO.quantity)
@@ -61,13 +62,19 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
     }
 
     //delete a shopping basket
+    @Operation(summary = "Delete a shopping basket")
     @DeleteMapping("/shoppingBasket/{shoppingBasketID}")
     @ResponseStatus(HttpStatus.OK)
     fun deleteShoppingBasket(@PathVariable shoppingBasketID: UUID) {
         shoppingBasketService.deleteShoppingBasket(shoppingBasketID)
     }
 
-
+    @Operation(summary = "Checkout a shopping basket, also deletes the shopping basket")
+    @DeleteMapping("/shoppingBasket/{shoppingBasketID}/checkout")
+    fun checkoutShoppingBasket(@PathVariable shoppingBasketID: UUID): ResponseEntity<ShoppingBasketDTO> {
+        val dto = shoppingBasketService.proceedToCheckout(shoppingBasketID)
+        return ResponseEntity(dto, HttpStatus.OK)
+    }
 }
 
 

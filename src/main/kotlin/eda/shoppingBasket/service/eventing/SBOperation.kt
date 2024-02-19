@@ -1,5 +1,5 @@
 package eda.shoppingBasket.service.eventing
 
 enum class SBOperation {
-    CREATED, UPDATED, DELETED
+    CREATED, UPDATED, DELETED, CHECKOUT
 }
