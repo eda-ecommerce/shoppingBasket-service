@@ -38,6 +38,11 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
         val shoppingBasketDTO = shoppingBasketService.getShoppingBasketDTOByCustomerID(customerID)
         return ResponseEntity(shoppingBasketDTO, HttpStatus.OK)
     }
+    @GetMapping("/shoppingBaskets")
+    fun getAllShoppingBaskets(): ResponseEntity<List<ShoppingBasketDTO>> {
+        val shoppingBaskets = shoppingBasketService.getAllShoppingBaskets()
+        return ResponseEntity(shoppingBaskets, HttpStatus.OK)
+    }
 
     //getting a shopping basket by its ID
     @GetMapping("/shoppingBasket/{shoppingBasketID}")

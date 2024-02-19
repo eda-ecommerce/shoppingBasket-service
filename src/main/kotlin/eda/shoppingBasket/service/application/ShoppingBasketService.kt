@@ -112,8 +112,10 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
     fun numberOfItemsInShoppingBasket(shoppingBasketID: UUID): Int =
         itemService.getNumberOfItemsInShoppingBasket(getShoppingBasket(shoppingBasketID))
 
-    fun getAllShoppingBaskets(): MutableIterable<ShoppingBasket> {
-        return shoppingBasketRepository.findAll()
+    fun getAllShoppingBaskets(): List<ShoppingBasketDTO> {
+        return shoppingBasketRepository.findAll().map { shoppingBasket ->
+            shoppingBasketMapper.toDTO(shoppingBasket, itemService.getItemsInShoppingBasket(shoppingBasket))
+        }
     }
 
     fun proceedToCheckout(shoppingBasketID: UUID): ShoppingBasketDTO {
