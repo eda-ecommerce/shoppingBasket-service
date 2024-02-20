@@ -9,5 +9,6 @@ import java.util.*
 @Repository
 interface ShoppingBasketItemRepository: CrudRepository<ShoppingBasketItem, UUID>{
     fun findByShoppingBasket(shoppingBasket: ShoppingBasket): List<ShoppingBasketItem>
+    fun findAllByOfferingID(offerID: UUID): List<ShoppingBasketItem>
     fun findByShoppingBasketAndShoppingBasketItemID(shoppingBasket: ShoppingBasket, shoppingBasketItemID: UUID): ShoppingBasketItem?
 }

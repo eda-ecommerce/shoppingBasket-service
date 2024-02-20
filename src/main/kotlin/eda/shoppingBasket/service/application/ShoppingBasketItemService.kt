@@ -1,6 +1,7 @@
 package eda.shoppingBasket.service.application
 
 import eda.shoppingBasket.service.application.exception.ShoppingBasketItemNotFoundException
+import eda.shoppingBasket.service.eventing.OfferingAvailableEvent
 import eda.shoppingBasket.service.eventing.OfferingUnavailableEvent
 import eda.shoppingBasket.service.model.ShoppingBasketItemMapper
 import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
@@ -68,9 +69,18 @@ class ShoppingBasketItemService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener
     fun handleOfferingUnavailableEvent(event: OfferingUnavailableEvent){
-        val shoppingBasketItems = shoppingBasketItemRepository.findAllById(listOf(event.offeringId))
+        val shoppingBasketItems = shoppingBasketItemRepository.findAllByOfferingID(event.offeringId)
         shoppingBasketItems.forEach {
             it.state = ItemState.UNAVAILABLE
+            shoppingBasketItemRepository.save(it)}
+    }
+    @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener
+    fun handleOfferingAvailableEvent(event: OfferingAvailableEvent){
+        val shoppingBasketItems = shoppingBasketItemRepository.findAllByOfferingID(event.offeringId)
+        shoppingBasketItems.forEach {
+            it.state = ItemState.AVAILABLE
             shoppingBasketItemRepository.save(it)}
     }
 
