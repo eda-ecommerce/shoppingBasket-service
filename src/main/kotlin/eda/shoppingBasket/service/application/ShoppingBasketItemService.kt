@@ -29,9 +29,14 @@ class ShoppingBasketItemService {
     private val shoppingBasketItemMapper = ShoppingBasketItemMapper()
 
     fun addOfferingToShoppingBasket(shoppingBasket: ShoppingBasket, offeringID: UUID, offeringAmount: Int): ShoppingBasketItemDTO {
+        val found = shoppingBasketItemRepository.findByShoppingBasketAndOfferingID(shoppingBasket, offeringID)
+        if (found!=null){//check duplicate
+            val updated = changeQuantity(shoppingBasket, found.shoppingBasketItemID, found.quantity + offeringAmount)
+            return updated!!
+        }
         val offering = offeringService.getOffering(offeringID)
         val totalPrice = offering.price * offeringAmount
-        val shoppingBasketItem = ShoppingBasketItem(quantity = offeringAmount, shoppingBasket = shoppingBasket, offeringID = offeringID, totalPrice = totalPrice)
+        val shoppingBasketItem = ShoppingBasketItem(quantity = offeringAmount, shoppingBasket = shoppingBasket, offeringID = offeringID, totalPrice = totalPrice, originalPrice = offering.price)
         shoppingBasketItemRepository.save(shoppingBasketItem)
         return shoppingBasketItemMapper.toDto(shoppingBasketItem)
     }
@@ -45,7 +50,7 @@ class ShoppingBasketItemService {
     fun changeQuantity(shoppingBasket: ShoppingBasket, itemId: UUID, newQuantity: Int): ShoppingBasketItemDTO?{
         if (newQuantity <= 0) return removeOfferingFromShoppingBasket(shoppingBasket, itemId)
         val shoppingBasketItem = shoppingBasketItemRepository.findByShoppingBasketAndShoppingBasketItemID(shoppingBasket, itemId) ?: throw ShoppingBasketItemNotFoundException()
-        shoppingBasketItem.totalPrice /= shoppingBasketItem.quantity
+        shoppingBasketItem.totalPrice = shoppingBasketItem.originalPrice * newQuantity
         shoppingBasketItem.quantity = newQuantity
         shoppingBasketItemRepository.save(shoppingBasketItem)
         return shoppingBasketItemMapper.toDto(shoppingBasketItem)
@@ -83,6 +88,4 @@ class ShoppingBasketItemService {
             it.state = ItemState.AVAILABLE
             shoppingBasketItemRepository.save(it)}
     }
-
-
 }
