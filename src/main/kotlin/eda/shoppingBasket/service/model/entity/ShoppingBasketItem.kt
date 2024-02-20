@@ -16,5 +16,6 @@ class ShoppingBasketItem (
     @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
     val shoppingBasket: ShoppingBasket,
     var totalPrice: Float,
+    var originalPrice: Float,
     var state: ItemState = ItemState.AVAILABLE
     )
