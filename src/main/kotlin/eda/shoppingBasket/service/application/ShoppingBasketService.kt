@@ -37,6 +37,12 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
                 throw ShoppingBasketDuplicationException("Shopping basket with id ${shoppingBasketDTO.shoppingBasketId} already exists.")
             }
         }
+        if(shoppingBasketDTO.customerId != null) {
+            val found = shoppingBasketRepository.findByCustomerID(shoppingBasketDTO.customerId!!)
+            if (found != null) {
+                throw ShoppingBasketDuplicationException("Shopping basket for customerID ${shoppingBasketDTO.customerId} already exists.")
+            }
+        }
         val newShoppingBasket = shoppingBasketMapper.toEntity(shoppingBasketDTO)
         val items = mutableListOf<ShoppingBasketItemDTO>()
         shoppingBasketRepository.save(newShoppingBasket)
@@ -47,19 +53,8 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         }
         val dto = shoppingBasketMapper.toDTO(newShoppingBasket, items)
         producer.sendMessage(dto, SBOperation.CREATED)
+        logger.info("Shopping basket created with id: ${dto.shoppingBasketId}")
         return dto
-    }
-
-    fun createShoppingBasketWithCustomerID(customerID: UUID): ShoppingBasketDTO {
-        //check for existing shopping basket with the same customerID
-        val found = shoppingBasketRepository.findByCustomerID(customerID)
-        if (found != null) {
-            throw ShoppingBasketDuplicationException("Shopping basket for customerID $customerID already exists.")
-        }
-        val newShoppingBasket = ShoppingBasket(customerID = customerID)
-        shoppingBasketRepository.save(newShoppingBasket)
-        logger.info("Created SB for customerID $customerID")
-        return shoppingBasketMapper.toDTO(newShoppingBasket, mutableListOf())
     }
 
     fun addOfferingToShoppingBasket(shoppingBasketID: UUID, offeringID: UUID, offeringAmount: Int): ShoppingBasketDTO? {
@@ -68,24 +63,27 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
         val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
         producer.sendMessage(dto, SBOperation.UPDATED)
+        logger.info("Offering $offeringID added to shopping basket $shoppingBasketID")
         return dto
     }
 
     fun removeItemFromShoppingBasket(shoppingBasketID: UUID, shoppingBasketItemID: UUID): ShoppingBasketDTO? {
         val shoppingBasket = getShoppingBasket(shoppingBasketID)
-        itemService.removeOfferingFromShoppingBasket(shoppingBasket, shoppingBasketItemID)
+        val removed = itemService.removeOfferingFromShoppingBasket(shoppingBasket, shoppingBasketItemID)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
         val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
         producer.sendMessage(dto, SBOperation.UPDATED)
+        logger.info("Offering ${removed?.offeringId} removed from shopping basket $shoppingBasketID")
         return dto
     }
 
     fun modifyItemQuantity(shoppingBasketID: UUID, shoppingBasketItemID: UUID, newQuantity: Int): ShoppingBasketDTO {
         val shoppingBasket = getShoppingBasket(shoppingBasketID)
-        itemService.changeQuantity(shoppingBasket, shoppingBasketItemID, newQuantity)
+        val modified = itemService.changeQuantity(shoppingBasket, shoppingBasketItemID, newQuantity)
         val items = itemService.getItemsInShoppingBasket(shoppingBasket)
         val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
         producer.sendMessage(dto, SBOperation.UPDATED)
+        logger.info("Offering ${modified?.offeringId} quantity modified in shopping basket $shoppingBasketID")
         return dto
     }
 
@@ -105,7 +103,6 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
 
     fun getShoppingBasketDTOByCustomerID(customerID: UUID): ShoppingBasketDTO {
         val shoppingBasket = shoppingBasketRepository.findByCustomerID(customerID)?: throw ShoppingBasketNotFoundException()
-
         return shoppingBasketMapper.toDTO(shoppingBasket, itemService.getItemsInShoppingBasket(shoppingBasket))
     }
 
@@ -121,6 +118,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
     fun proceedToCheckout(shoppingBasketID: UUID): ShoppingBasketDTO {
         val sbDto = getShoppingBasketDTO(shoppingBasketID)
         producer.sendMessage(sbDto, SBOperation.CHECKOUT)
+        logger.info("Customer ${sbDto.customerId} proceeded to checkout with shopping basket: $sbDto")
         deleteShoppingBasket(shoppingBasketID)
         return sbDto
     }
@@ -131,6 +129,7 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
             val dto = getShoppingBasketDTO(shoppingBasketID)
             shoppingBasketRepository.deleteById(shoppingBasketID)
             producer.sendMessage(dto, SBOperation.DELETED)
+            logger.info("Shopping basket $shoppingBasketID deleted")
             return true
         }
         return false

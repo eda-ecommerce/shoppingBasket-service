@@ -134,14 +134,7 @@ class CartApplicationServiceTest {
         val result = shoppingBasketService.createShoppingBasket(emptyTestShoppingBasketDTO)
         equalsTestShoppingBasketDto(result, testShoppingBasket)
     }
-    //@Test
-    fun createShoppingBasketWithCustomerIDShouldReturnShoppingBasketDTO() {
-        every { shoppingBasketRepository.save(any()) } returns testShoppingBasket.apply { customerID = testCustomerUUID }
-        every { shoppingBasketRepository.findByShoppingBasketID(any()) } returns null
-        every { shoppingBasketRepository.findByCustomerID(testCustomerUUID) } returns null
-        val result = shoppingBasketService.createShoppingBasketWithCustomerID(testCustomerUUID)
-        equalsTestShoppingBasketDto(result, testShoppingBasket)
-    }
+
     @Test
     fun addOfferingToShoppingBasketShouldReturnShoppingBasketDTO() {
         every { shoppingBasketItemRepository.findByShoppingBasket(testShoppingBasket) } returns listOf(testShoppingBasketItem)
