@@ -1,12 +1,14 @@
 package eda.shoppingBasket.service.model.dto
 
+import eda.shoppingBasket.service.model.entity.Offering
 import java.util.UUID
 
 data class OfferingDTO (
     val id: UUID,
-    val productID: UUID,
+    val productID: UUID?,
     val quantity: Int,
-    val price: Float
+    val price: Float,
+    val status: Offering.Status?
 ){
 
     override fun hashCode(): Int {

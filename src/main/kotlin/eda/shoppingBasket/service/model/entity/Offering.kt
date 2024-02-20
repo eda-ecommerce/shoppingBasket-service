@@ -8,10 +8,17 @@ import java.util.*
 class Offering(
     val quantity: Int,
     val price: Float,
+    val status: Status = Status.ACTIVE,
     @Id
     val offeringID: UUID
 
 ) {
+    enum class Status {
+        ACTIVE, INACTIVE, RETIRED;
+        override fun toString(): String {
+            return name.lowercase()
+        }
+    }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
