@@ -76,7 +76,8 @@ class ControllerIntegrationTest {
         shoppingBasketItemID = randomUUID(),
         quantity = 4,
         totalPrice = 16f,
-        offeringID = testOffering.offeringID
+        offeringID = testOffering.offeringID,
+        originalPrice = testOffering.price,
     )
 
     final val testShoppingBasketItemDTO = ShoppingBasketItemDTO(
@@ -84,7 +85,8 @@ class ControllerIntegrationTest {
         offeringId = testShoppingBasketItem.offeringID,
         totalPrice = testShoppingBasketItem.totalPrice,
         itemState = testShoppingBasketItem.state,
-        quantity = testShoppingBasketItem.quantity
+        quantity = testShoppingBasketItem.quantity,
+        shoppingBasketItemId = null
     )
 
     final val fullTestShoppingBasketDTO = ShoppingBasketDTO(
