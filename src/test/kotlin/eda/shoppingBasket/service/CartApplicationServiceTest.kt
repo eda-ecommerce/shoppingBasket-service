@@ -80,7 +80,8 @@ class CartApplicationServiceTest {
         shoppingBasket = testShoppingBasket,
         quantity = 3,
         totalPrice = 4.2f,
-        offeringID = testOffering.offeringID
+        offeringID = testOffering.offeringID,
+        originalPrice = testOffering.price,
     )
 
     final val fullTestShoppingBasket = ShoppingBasket(
@@ -94,7 +95,8 @@ class CartApplicationServiceTest {
         offeringId = testShoppingBasketItem.offeringID,
         totalPrice = testShoppingBasketItem.totalPrice,
         itemState = testShoppingBasketItem.state,
-        quantity = testShoppingBasketItem.quantity
+        quantity = testShoppingBasketItem.quantity,
+        shoppingBasketItemId = testShoppingBasketItem.shoppingBasketItemID
     )
 
     final val testShoppingBasketDto = ShoppingBasketDTO(
@@ -130,7 +132,8 @@ class CartApplicationServiceTest {
     fun createShoppingBasketShouldReturnShoppingBasketDTO() {
         every { shoppingBasketItemRepository.findByShoppingBasket(testShoppingBasket) } returns listOf()
         every { shoppingBasketRepository.save(any()) } returns testShoppingBasket
-        every { shoppingBasketRepository.findByShoppingBasketID(any()) } returns null
+        every { shoppingBasketRepository.findByShoppingBasketID(any()) } returns null //not present
+        every { shoppingBasketRepository.findByCustomerID(any()) } returns null //not present
         val result = shoppingBasketService.createShoppingBasket(emptyTestShoppingBasketDTO)
         equalsTestShoppingBasketDto(result, testShoppingBasket)
     }
@@ -140,6 +143,7 @@ class CartApplicationServiceTest {
         every { shoppingBasketItemRepository.findByShoppingBasket(testShoppingBasket) } returns listOf(testShoppingBasketItem)
         every { shoppingBasketRepository.save(testShoppingBasket) } returns testShoppingBasket
         every { shoppingBasketItemRepository.save(any()) } returns testShoppingBasketItem
+        every { shoppingBasketItemRepository.findByShoppingBasketAndOfferingID(any(),any()) } returns null //Not present
         val result = shoppingBasketService.addOfferingToShoppingBasket(testShoppingBasketUUID, testOfferingUUID, 13)
         equalsTestShoppingBasketDto(result!!, testShoppingBasketDto)
     }
