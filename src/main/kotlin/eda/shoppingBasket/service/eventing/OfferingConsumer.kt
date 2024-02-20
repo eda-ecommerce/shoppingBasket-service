@@ -31,7 +31,7 @@ class OfferingConsumer {
             if (header.key() == "operation") {
                 val operation = String(header.value())
                 when (operation) {
-                    "delete" -> {
+                    "deleted" -> {
                         offeringService.disableOffering(event.id)
                         countDownLatch.countDown()
                         return

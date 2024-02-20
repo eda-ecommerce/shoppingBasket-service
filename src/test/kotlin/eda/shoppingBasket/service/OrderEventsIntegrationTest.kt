@@ -76,7 +76,7 @@ class OrderEventsIntegrationTest {
                 "    }\n" +
                 "}"
         val retireOfferingRecord = ProducerRecord<String, String>("offering", eventString).apply {
-            headers().add("operation", "delete".toByteArray())
+            headers().add("operation", "deleted".toByteArray())
             headers().add("source", "offering-service".toByteArray())
             headers().add("timestamp", System.currentTimeMillis().toString().toByteArray())
         }
