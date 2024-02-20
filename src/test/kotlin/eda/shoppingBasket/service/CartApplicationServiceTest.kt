@@ -5,6 +5,7 @@ import eda.shoppingBasket.service.application.ShoppingBasketService
 import eda.shoppingBasket.service.eventing.ShoppingBasketProducer
 import eda.shoppingBasket.service.model.ShoppingBasketMapper
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
+import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
 import eda.shoppingBasket.service.model.entity.Offering
 import eda.shoppingBasket.service.model.entity.ShoppingBasket
 import eda.shoppingBasket.service.model.entity.ShoppingBasketItem
@@ -82,6 +83,28 @@ class CartApplicationServiceTest {
         offeringID = testOffering.offeringID
     )
 
+    final val fullTestShoppingBasket = ShoppingBasket(
+        shoppingBasketID = testShoppingBasketUUID,
+        customerID = testCustomerUUID,
+        totalPrice = 4.2f,
+    )
+
+    final val testShoppingBasketItemDto = ShoppingBasketItemDTO(
+        shoppingBasketId = testShoppingBasketItem.shoppingBasket.shoppingBasketID,
+        offeringId = testShoppingBasketItem.offeringID,
+        totalPrice = testShoppingBasketItem.totalPrice,
+        itemState = testShoppingBasketItem.state,
+        quantity = testShoppingBasketItem.quantity
+    )
+
+    final val testShoppingBasketDto = ShoppingBasketDTO(
+        shoppingBasketId = testShoppingBasket.shoppingBasketID,
+        customerId = testShoppingBasket.customerID,
+        totalPrice = testShoppingBasketItem.totalPrice,
+        totalItemQuantity = 1,
+        items = mutableListOf(testShoppingBasketItemDto)
+    )
+
     fun equalsTestShoppingBasketDto(givenDTO: ShoppingBasketDTO, compareTo: ShoppingBasket) {
         Assertions.assertEquals(givenDTO.shoppingBasketId, emptyTestShoppingBasketDTO.shoppingBasketId)
         Assertions.assertEquals(givenDTO.customerId, emptyTestShoppingBasketDTO.customerId)
@@ -119,18 +142,20 @@ class CartApplicationServiceTest {
         val result = shoppingBasketService.createShoppingBasketWithCustomerID(testCustomerUUID)
         equalsTestShoppingBasketDto(result, testShoppingBasket)
     }
-    //@Test
+    @Test
     fun addOfferingToShoppingBasketShouldReturnShoppingBasketDTO() {
         every { shoppingBasketItemRepository.findByShoppingBasket(testShoppingBasket) } returns listOf(testShoppingBasketItem)
         every { shoppingBasketRepository.save(testShoppingBasket) } returns testShoppingBasket
-        every { shoppingBasketItemRepository.save(testShoppingBasketItem) } returns testShoppingBasketItem
+        every { shoppingBasketItemRepository.save(any()) } returns testShoppingBasketItem
         val result = shoppingBasketService.addOfferingToShoppingBasket(testShoppingBasketUUID, testOfferingUUID, 13)
-        equalsTestShoppingBasketDto(result!!, testShoppingBasket)
+        equalsTestShoppingBasketDto(result!!, testShoppingBasketDto)
     }
     //@Test
+    //disabled because we need to split this into two tests, one for base SB and one for items
     fun removeItemFromShoppingBasketShouldReturnShoppingBasketDTO() {
-        every { shoppingBasketRepository.save(testShoppingBasket) } returns testShoppingBasket
-        every { shoppingBasketItemRepository.save(testShoppingBasketItem) } returns testShoppingBasketItem
+        every { shoppingBasketRepository.findByIdOrNull(testShoppingBasketUUID) } returns fullTestShoppingBasket
+        every { shoppingBasketItemRepository.findByShoppingBasketAndShoppingBasketItemID(fullTestShoppingBasket, testShoppingBasketItemUUID) } returns testShoppingBasketItem
+        every { shoppingBasketItemRepository.delete(testShoppingBasketItem) } returns Unit
         val result = shoppingBasketService.removeItemFromShoppingBasket(testShoppingBasketUUID, testShoppingBasketItemUUID)
         equalsTestShoppingBasketDto(result!!, testShoppingBasket)
     }
@@ -212,8 +237,9 @@ class CartApplicationServiceTest {
     @Test
     fun getAListOfAllShoppingBasketsShouldReturnListOfShoppingBaskets() {
         every { shoppingBasketRepository.findAll() } returns listOf(testShoppingBasket)
+        every { shoppingBasketItemRepository.findByShoppingBasket(testShoppingBasket) } returns listOf(testShoppingBasketItem)
         val result = shoppingBasketService.getAllShoppingBaskets()
-        Assertions.assertEquals(listOf(testShoppingBasket), result)
+        Assertions.assertEquals(listOf(testShoppingBasketDto), result)
     }
     //@Test
     fun deletingShoppingBasketShouldReturnTrue() {

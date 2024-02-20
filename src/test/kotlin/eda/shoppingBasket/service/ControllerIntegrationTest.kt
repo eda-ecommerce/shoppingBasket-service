@@ -176,10 +176,12 @@ class ControllerIntegrationTest {
         assert(response != null)
         Assertions.assertEquals(HttpStatus.OK,response.statusCode)
         assert(response.hasBody())
-        assertDtoEqualsDto(response.body!!, fullTestShoppingBasketDTO.apply {
+        val reducedbasket = fullTestShoppingBasketDTO.apply {
             totalItemQuantity = 1
             totalPrice = 4f
-        })
+            items = listOf(testShoppingBasketItemDTO.copy(quantity = 1, totalPrice = 4f))
+        }
+        assertDtoEqualsDto(response.body!!, reducedbasket)
     }
 
     @Test
