@@ -18,12 +18,6 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
         return ResponseEntity(shoppingBasketService.createShoppingBasket(shoppingBasketDTO), HttpStatus.CREATED)
     }
 
-    //creating a new shopping basket with a customerID
-    @PostMapping("/shoppingBasket/customer/{customerID}") //POST /shoppingBasket/81765f-128512-f1238
-    fun createShoppingBasketWithCustomerID(@PathVariable customerID: UUID, @RequestBody shoppingBasketDTO: ShoppingBasketDTO) : ResponseEntity<ShoppingBasketDTO> {
-        return ResponseEntity(shoppingBasketService.createShoppingBasketWithCustomerID(customerID), HttpStatus.CREATED)
-    }
-
     //adding an offering to a shopping basket
     @Operation(summary = "Add an offering to a shopping basket")
     @PostMapping("/shoppingBasket/{shoppingBasketID}/addOffering") // POST /shoppingBasket/81765f-128512-f1238/81765f-128512-f1238/2
