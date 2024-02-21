@@ -1,13 +1,13 @@
 version: '3.3'
 services:
   eda-shoppingbasket:
-    image: 57eb87fd7d0e
+    image: "ghcr.io/eda-ecommerce/shoppingbasket-service:1.4.3"
     ports:
       - '8080:8080'
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: 'shoppingbasket-service-kafka-1:9092'
       KAFKA_BOOTSTRAP_ADDRESS: 'shoppingbasket-service-kafka-1:9092'
       DB_DBNAME: 'database'
-      DB_USERNAME: 'shoppingbasket'
-      DB_PASSWORD: 'XpJjf6C67RXjA4'
+      DB_USERNAME: 'shopping-basket-service'
+      DB_PASSWORD: 'shopping-basket-service'
       DB_HOST: "shoppingbasket-service-db-1:3306"
