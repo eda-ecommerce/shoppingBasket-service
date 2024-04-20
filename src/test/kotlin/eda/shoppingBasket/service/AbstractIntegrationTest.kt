@@ -32,7 +32,7 @@ abstract class AbstractIntegrationTest {
         @JvmStatic
         @AfterAll
         fun stopDBContainer() {
-            db.stop()
+            kafka.stop()
         }
 
         @DynamicPropertySource

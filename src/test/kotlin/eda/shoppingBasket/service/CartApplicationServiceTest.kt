@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
@@ -28,6 +29,7 @@ import java.util.UUID.randomUUID
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
 @ActiveProfiles("unit-test")
+@EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9092", "port=9092"])
 class CartApplicationServiceTest {
 
     @MockkBean
