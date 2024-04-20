@@ -1,6 +1,6 @@
 package eda.shoppingBasket.service.model
 
-import eda.shoppingBasket.service.eventing.OfferingEvent
+import eda.shoppingBasket.service.eventing.offering.OfferingEvent
 import eda.shoppingBasket.service.model.dto.OfferingDTO
 import eda.shoppingBasket.service.model.entity.Offering
 

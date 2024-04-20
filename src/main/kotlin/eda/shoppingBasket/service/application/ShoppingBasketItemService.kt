@@ -1,8 +1,8 @@
 package eda.shoppingBasket.service.application
 
 import eda.shoppingBasket.service.application.exception.ShoppingBasketItemNotFoundException
-import eda.shoppingBasket.service.eventing.OfferingAvailableEvent
-import eda.shoppingBasket.service.eventing.OfferingUnavailableEvent
+import eda.shoppingBasket.service.eventing.offering.OfferingAvailableEvent
+import eda.shoppingBasket.service.eventing.offering.OfferingUnavailableEvent
 import eda.shoppingBasket.service.model.ShoppingBasketItemMapper
 import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
 import eda.shoppingBasket.service.model.entity.ItemState

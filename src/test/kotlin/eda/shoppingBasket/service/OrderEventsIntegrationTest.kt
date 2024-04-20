@@ -1,17 +1,14 @@
 package eda.shoppingBasket.service
 
-import eda.shoppingBasket.service.application.OfferingService
 import eda.shoppingBasket.service.application.ShoppingBasketService
-import eda.shoppingBasket.service.eventing.OfferingConsumer
+import eda.shoppingBasket.service.eventing.offering.OfferingConsumer
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.entity.ItemState
 import eda.shoppingBasket.service.model.entity.Offering
 import eda.shoppingBasket.service.repository.OfferingRepository
 import eda.shoppingBasket.service.repository.ShoppingBasketItemRepository
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -20,7 +17,10 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.testcontainers.containers.MySQLContainer
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -31,6 +31,34 @@ import java.util.concurrent.TimeUnit
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("dev")
 class OrderEventsIntegrationTest {
+
+    companion object{
+        val db = MySQLContainer("mysql")
+
+        @JvmStatic
+        @BeforeAll
+        fun startDBContainer(){
+            db.start()
+        }
+
+        @JvmStatic
+        @AfterAll
+        fun stopDBContainer(){
+            db.stop()
+        }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun registerDbContainer(registry: DynamicPropertyRegistry){
+            registry.add("spring.datasource.url", db::getJdbcUrl)
+            registry.add("spring.datasource.username", db::getUsername)
+            registry.add("spring.datasource.password", db::getPassword)
+        }
+    }
+    @Test
+    fun testDbRunning(){
+        assert(db.isRunning)
+    }
 
     @Autowired
     private lateinit var offeringConsumer: OfferingConsumer

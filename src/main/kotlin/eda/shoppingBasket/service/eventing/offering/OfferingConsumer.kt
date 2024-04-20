@@ -1,4 +1,4 @@
-package eda.shoppingBasket.service.eventing
+package eda.shoppingBasket.service.eventing.offering
 
 import com.google.gson.Gson
 import eda.shoppingBasket.service.application.OfferingService
@@ -6,6 +6,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.header.Header
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.ApplicationEventPublisherAware
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import java.util.concurrent.CountDownLatch

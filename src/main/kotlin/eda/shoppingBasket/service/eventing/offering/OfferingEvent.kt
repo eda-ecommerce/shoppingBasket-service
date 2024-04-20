@@ -1,7 +1,5 @@
-package eda.shoppingBasket.service.eventing
+package eda.shoppingBasket.service.eventing.offering
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonValue
 import eda.shoppingBasket.service.model.entity.Offering
 import java.util.UUID
 

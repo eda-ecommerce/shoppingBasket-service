@@ -1,4 +1,4 @@
-package eda.shoppingBasket.service.eventing
+package eda.shoppingBasket.service.eventing.offering
 
 import org.springframework.context.ApplicationEvent
 import java.util.*
