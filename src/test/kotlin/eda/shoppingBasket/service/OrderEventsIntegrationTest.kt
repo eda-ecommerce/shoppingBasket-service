@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit
 @SpringBootTest
 @ActiveProfiles("dev")
 class OrderEventsIntegrationTest: AbstractIntegrationTest(){
-
-
     @Autowired
     private lateinit var offeringConsumer: OfferingConsumer
 
