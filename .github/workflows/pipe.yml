@@ -17,18 +17,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    #services:
-    #  mysql:
-    #    image: mysql:8.0.26
-    #    env:
-    #      MYSQL_ROOT_PASSWORD: 'verysecurepassword'
-    #      MYSQL_PASSWORD: 'shopping-basket-service'
-    #      MYSQL_USER: 'shopping-basket-service'
-    #      MYSQL_DATABASE: 'database'
-    #      MYSQL_ROOT_HOST: "%"
-    #    ports:
-    #      - 3306:3306
-    #    options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3 --rm
     steps:
       - uses: actions/checkout@v4
       - name: Setup JDK 17 + cache
@@ -39,12 +27,6 @@ jobs:
           # setup maven cache as well
           cache: maven
       - name: Test
-        env:
-          DB_HOST: localhost:3306
-          DB_PASSWORD: 'shopping-basket-service'
-          DB_USERNAME: 'shopping-basket-service'
-          DB_DBNAME: 'database'
-          KAFKA_BOOTSTRAP_ADDRESS: localhost:29092
         run: mvn verify
 
   # name of the job(s)
