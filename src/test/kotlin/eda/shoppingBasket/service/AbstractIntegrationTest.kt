@@ -7,19 +7,26 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.lifecycle.Startables
+import org.testcontainers.utility.DockerImageName
 
 @DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9092", "port=9092"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 abstract class AbstractIntegrationTest {
     companion object {
         val db = MySQLContainer("mysql")
+        val kafka = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
+            .withEmbeddedZookeeper()
 
         @JvmStatic
         @BeforeAll
         fun startDBContainer() {
-            db.start()
+            Startables.deepStart(
+                db,
+                kafka
+            ).join()
         }
 
         @JvmStatic
@@ -34,6 +41,12 @@ abstract class AbstractIntegrationTest {
             registry.add("spring.datasource.url", db::getJdbcUrl)
             registry.add("spring.datasource.username", db::getUsername)
             registry.add("spring.datasource.password", db::getPassword)
+        }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun registerKafkaContainer(registry: DynamicPropertyRegistry) {
+            registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers)
         }
     }
 }
