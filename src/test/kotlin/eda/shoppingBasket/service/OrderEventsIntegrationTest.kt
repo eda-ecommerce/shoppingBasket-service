@@ -25,40 +25,9 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @SpringBootTest
-@ExtendWith(SpringExtension::class)
-@DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9092", "port=9092"])
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("dev")
-class OrderEventsIntegrationTest {
+class OrderEventsIntegrationTest: AbstractIntegrationTest(){
 
-    companion object{
-        val db = MySQLContainer("mysql")
-
-        @JvmStatic
-        @BeforeAll
-        fun startDBContainer(){
-            db.start()
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun stopDBContainer(){
-            db.stop()
-        }
-
-        @DynamicPropertySource
-        @JvmStatic
-        fun registerDbContainer(registry: DynamicPropertyRegistry){
-            registry.add("spring.datasource.url", db::getJdbcUrl)
-            registry.add("spring.datasource.username", db::getUsername)
-            registry.add("spring.datasource.password", db::getPassword)
-        }
-    }
-    @Test
-    fun testDbRunning(){
-        assert(db.isRunning)
-    }
 
     @Autowired
     private lateinit var offeringConsumer: OfferingConsumer

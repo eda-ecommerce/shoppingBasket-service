@@ -9,9 +9,7 @@ import eda.shoppingBasket.service.model.entity.ShoppingBasketItem
 import eda.shoppingBasket.service.repository.OfferingRepository
 import eda.shoppingBasket.service.repository.ShoppingBasketItemRepository
 import eda.shoppingBasket.service.repository.ShoppingBasketRepository
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -24,18 +22,19 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.testcontainers.containers.MySQLContainer
 import java.util.UUID.randomUUID
 
 
-//copying stuff from customer-service ControllerIntegrationTest.kt
-//Annotate to find config of application. TODO: Create separate test configs (maybe testcontainers?)
-@ExtendWith(SpringExtension::class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9092", "port=9092"])
-class ControllerIntegrationTest {
+class ControllerIntegrationTest: AbstractIntegrationTest() {
+    @Test
+    fun testDbRunning(){
+        assert(db.isRunning)
+    }
 
     @Autowired
     lateinit var testRestTemplate: TestRestTemplate
