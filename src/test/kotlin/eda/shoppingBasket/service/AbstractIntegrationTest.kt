@@ -16,7 +16,7 @@ import org.testcontainers.utility.DockerImageName
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 abstract class AbstractIntegrationTest {
     companion object {
-        val db = MySQLContainer("mysql")
+        val db = MySQLContainer("mysql:8.2.0")
         val kafka = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
             .withEmbeddedZookeeper()
 
