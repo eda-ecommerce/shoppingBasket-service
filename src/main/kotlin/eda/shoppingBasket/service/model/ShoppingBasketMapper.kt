@@ -1,6 +1,5 @@
 package eda.shoppingBasket.service.model
 
-import eda.shoppingBasket.service.model.dto.ShoppingBasketCreationDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.entity.ShoppingBasket
 import org.springframework.beans.factory.annotation.Autowired

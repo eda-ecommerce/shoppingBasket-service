@@ -1,22 +1,13 @@
 package eda.shoppingBasket.service
 
-import eda.shoppingBasket.service.model.dto.OfferingDTO
-import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
-import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
-import eda.shoppingBasket.service.model.entity.ItemState
-import eda.shoppingBasket.service.model.entity.Offering
-import eda.shoppingBasket.service.model.entity.ShoppingBasket
-import eda.shoppingBasket.service.model.entity.ShoppingBasketItem
 import eda.shoppingBasket.service.repository.ShoppingBasketItemRepository
 import eda.shoppingBasket.service.repository.ShoppingBasketRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
 
 @SpringBootTest
 class ShoppingBasketIntegrationTest : AbstractIntegrationTest() {

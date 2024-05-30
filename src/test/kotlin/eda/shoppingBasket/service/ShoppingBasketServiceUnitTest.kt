@@ -2,11 +2,6 @@ package eda.shoppingBasket.service
 
 import com.ninjasquad.springmockk.MockkBean
 import eda.shoppingBasket.service.application.ShoppingBasketService
-import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
-import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
-import eda.shoppingBasket.service.model.entity.ItemState
-import eda.shoppingBasket.service.model.entity.ShoppingBasket
-import eda.shoppingBasket.service.model.entity.ShoppingBasketItem
 import eda.shoppingBasket.service.repository.ShoppingBasketRepository
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -15,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
-import java.util.*
 
 
 @SpringBootTest

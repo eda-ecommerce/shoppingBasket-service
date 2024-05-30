@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.test.context.ActiveProfiles
 import java.lang.Thread.sleep
-import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -64,7 +63,7 @@ class ShoppingBasketEventIntegrationTest: AbstractIntegrationTest() {
         sleep(500) //prevent double consumption of events
         val testDto = testBasketDTOEmpty
         producer.sendMessage(testDto, SBOperation.CREATED)
-        val consumed = sbCountDownLatch!!.await(3, TimeUnit.SECONDS)
+        val consumed = sbCountDownLatch.await(3, TimeUnit.SECONDS)
         assert(consumed)
         assert(message!=null && headers != null)
         Assertions.assertEquals(testDto, message)
