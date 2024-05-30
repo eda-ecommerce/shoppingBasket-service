@@ -9,13 +9,25 @@ class ShoppingBasketItemMapper {
 
     fun toDto(shoppingBasketItem: ShoppingBasketItem): ShoppingBasketItemDTO {
         return ShoppingBasketItemDTO(
-            shoppingBasketItemId = shoppingBasketItem.shoppingBasketItemID,
-            shoppingBasketId = shoppingBasketItem.shoppingBasket.shoppingBasketID,
             offeringId = shoppingBasketItem.offeringID,
             quantity = shoppingBasketItem.quantity,
-            totalPrice = shoppingBasketItem.totalPrice,
-            itemState = shoppingBasketItem.state
+            totalPrice = shoppingBasketItem.subtotal,
+            bundlePrice = shoppingBasketItem.offeringPrice,
+            state = shoppingBasketItem.state,
+            id = shoppingBasketItem.id
         )
     }
+
+    fun toEntity(shoppingBasketItemDTO: ShoppingBasketItemDTO): ShoppingBasketItem {
+        return ShoppingBasketItem(
+            quantity = shoppingBasketItemDTO.quantity,
+            subtotal = shoppingBasketItemDTO.totalPrice,
+            offeringID = shoppingBasketItemDTO.offeringId,
+            offeringPrice = shoppingBasketItemDTO.bundlePrice,
+            state = shoppingBasketItemDTO.state
+        )
+    }
+
+
 
 }

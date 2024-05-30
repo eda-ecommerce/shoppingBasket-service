@@ -12,7 +12,7 @@ spring:
     activate:
       on-profile: "dev"
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:localhost:29092}
     consumer:
       auto-offset-reset: earliest
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -38,6 +38,9 @@ spring:
   sql:
     init:
       mode: always
+server:
+  error:
+    include-message: always
 ---
 springdoc:
   swagger-ui:
@@ -73,6 +76,9 @@ spring:
   sql:
     init:
       mode: always
+server:
+  error:
+    include-message: always
 ---
 spring:
   config:

@@ -1,132 +1,113 @@
 package eda.shoppingBasket.service.application
 
+import eda.shoppingBasket.service.application.exception.CheckoutUnavailableException
 import eda.shoppingBasket.service.application.exception.ShoppingBasketDuplicationException
 import eda.shoppingBasket.service.application.exception.ShoppingBasketNotFoundException
-import eda.shoppingBasket.service.eventing.SBOperation
-import eda.shoppingBasket.service.eventing.ShoppingBasketProducer
+import eda.shoppingBasket.service.eventing.shoppingBasket.SBOperation
+import eda.shoppingBasket.service.eventing.shoppingBasket.ShoppingBasketProducer
+import eda.shoppingBasket.service.eventing.shoppingBasket.ShoppingBasketCreatedEvent
 import eda.shoppingBasket.service.model.ShoppingBasketMapper
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
-import eda.shoppingBasket.service.model.dto.ShoppingBasketItemDTO
 import eda.shoppingBasket.service.model.entity.ShoppingBasket
 import eda.shoppingBasket.service.repository.ShoppingBasketRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.ApplicationEventPublisherAware
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasketRepository) {
+class ShoppingBasketService: ApplicationEventPublisherAware {
 
     @Autowired
     lateinit var shoppingBasketMapper: ShoppingBasketMapper
 
     @Autowired
-    lateinit var itemService: ShoppingBasketItemService
+    lateinit var shoppingBasketRepository: ShoppingBasketRepository
+
+    @Autowired
+    lateinit var offeringService: OfferingService
 
     @Autowired
     private lateinit var producer: ShoppingBasketProducer
 
+    @Autowired
+    private lateinit var applicationEventPublisher: ApplicationEventPublisher
+
     final val logger = LoggerFactory.getLogger(ShoppingBasketService::class.java)
 
-    fun createShoppingBasket(shoppingBasketDTO: ShoppingBasketDTO): ShoppingBasketDTO {
-        //check for existing shopping basket
-        if (shoppingBasketDTO.shoppingBasketId != null) {
-            val found = shoppingBasketRepository.findByShoppingBasketID(shoppingBasketDTO.shoppingBasketId!!)
-            if (found != null) {
-                throw ShoppingBasketDuplicationException("Shopping basket with id ${shoppingBasketDTO.shoppingBasketId} already exists.")
-            }
+    fun getShoppingBasket(shoppingBasketID: UUID): ShoppingBasketDTO {
+        return shoppingBasketMapper.toDTO(
+        shoppingBasketRepository.findByIdOrNull(shoppingBasketID)
+            ?: throw ShoppingBasketNotFoundException()
+        )
+    }
+
+    fun getShoppingBasketByCustomerID(customerID: UUID): ShoppingBasketDTO {
+        return shoppingBasketMapper.toDTO(
+            shoppingBasketRepository.findByCustomerID(customerID)
+                ?: throw ShoppingBasketNotFoundException()
+        )
+    }
+
+    fun createShoppingBasket(shoppingBasketDTO: ShoppingBasketDTO): ShoppingBasketDTO{
+        val newFull = shoppingBasketMapper.toEntity(shoppingBasketDTO)
+        val newSanitized = ShoppingBasket(newFull.customerID, newFull.items)
+        val found = shoppingBasketRepository.findByIdOrCustomerID(newSanitized.id, newSanitized.customerID)
+        if(found != null){
+            throw ShoppingBasketDuplicationException()
         }
-        if(shoppingBasketDTO.customerId != null) {
-            val found = shoppingBasketRepository.findByCustomerID(shoppingBasketDTO.customerId!!)
-            if (found != null) {
-                throw ShoppingBasketDuplicationException("Shopping basket for customerID ${shoppingBasketDTO.customerId} already exists.")
-            }
-        }
-        val newShoppingBasket = shoppingBasketMapper.toEntity(shoppingBasketDTO)
-        val items = mutableListOf<ShoppingBasketItemDTO>()
-        shoppingBasketRepository.save(newShoppingBasket)
-        if (shoppingBasketDTO.items.isNotEmpty()){
-            shoppingBasketDTO.items.forEach {
-                items.add(itemService.addOfferingToShoppingBasket(newShoppingBasket, it.offeringId, it.quantity))
-            }
-        }
-        val dto = shoppingBasketMapper.toDTO(newShoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.CREATED)
-        logger.info("Shopping basket created with id: ${dto.shoppingBasketId}")
+        shoppingBasketRepository.save(newSanitized)
+        val dto = shoppingBasketMapper.toDTO(newSanitized)
+        applicationEventPublisher.publishEvent(ShoppingBasketCreatedEvent(this, dto))
         return dto
     }
 
-    fun addOfferingToShoppingBasket(shoppingBasketID: UUID, offeringID: UUID, offeringAmount: Int): ShoppingBasketDTO? {
-        val shoppingBasket = getShoppingBasket(shoppingBasketID)
-        itemService.addOfferingToShoppingBasket(shoppingBasket, offeringID, offeringAmount)
-        val items = itemService.getItemsInShoppingBasket(shoppingBasket)
-        val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.UPDATED)
-        logger.info("Offering $offeringID added to shopping basket $shoppingBasketID")
-        return dto
+    fun addOfferingToBasket(shoppingBasketID: UUID, offeringID: UUID, count: Int): ShoppingBasketDTO{
+        val found = shoppingBasketRepository.findByIdOrNull(shoppingBasketID) ?: throw ShoppingBasketNotFoundException()
+        val offering = offeringService.getOffering(offeringID)
+        found.addOfferingToBasket(offering, count)
+        shoppingBasketRepository.save(found)
+        return shoppingBasketMapper.toDTO(found)
     }
 
-    fun removeItemFromShoppingBasket(shoppingBasketID: UUID, shoppingBasketItemID: UUID): ShoppingBasketDTO? {
-        val shoppingBasket = getShoppingBasket(shoppingBasketID)
-        val removed = itemService.removeOfferingFromShoppingBasket(shoppingBasket, shoppingBasketItemID)
-        val items = itemService.getItemsInShoppingBasket(shoppingBasket)
-        val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.UPDATED)
-        logger.info("Offering ${removed?.offeringId} removed from shopping basket $shoppingBasketID")
-        return dto
-    }
-
-    fun modifyItemQuantity(shoppingBasketID: UUID, shoppingBasketItemID: UUID, newQuantity: Int): ShoppingBasketDTO {
-        val shoppingBasket = getShoppingBasket(shoppingBasketID)
-        val modified = itemService.changeQuantity(shoppingBasket, shoppingBasketItemID, newQuantity)
-        val items = itemService.getItemsInShoppingBasket(shoppingBasket)
-        val dto = shoppingBasketMapper.toDTO(shoppingBasket, items)
-        producer.sendMessage(dto, SBOperation.UPDATED)
-        logger.info("Offering ${modified?.offeringId} quantity modified in shopping basket $shoppingBasketID")
-        return dto
-    }
-
-    fun getShoppingBasket(shoppingBasketID: UUID): ShoppingBasket {
-        return shoppingBasketRepository.findByIdOrNull(shoppingBasketID)?: throw ShoppingBasketNotFoundException()
-    }
-
-    fun getShoppingBasketDTO(shoppingBasketID: UUID): ShoppingBasketDTO {
-        val shoppingBasket = getShoppingBasket(shoppingBasketID)
-        val items = itemService.getItemsInShoppingBasket(shoppingBasket)
-        return shoppingBasketMapper.toDTO(shoppingBasket, items)
-    }
-
-    fun getShoppingBasketByCustomerID(customerID: UUID): ShoppingBasket {
-        return shoppingBasketRepository.findByCustomerID(customerID)?: throw ShoppingBasketNotFoundException()
-    }
-
-    fun getShoppingBasketDTOByCustomerID(customerID: UUID): ShoppingBasketDTO {
-        val shoppingBasket = shoppingBasketRepository.findByCustomerID(customerID)?: throw ShoppingBasketNotFoundException()
-        return shoppingBasketMapper.toDTO(shoppingBasket, itemService.getItemsInShoppingBasket(shoppingBasket))
-    }
-
-    fun numberOfItemsInShoppingBasket(shoppingBasketID: UUID): Int =
-        itemService.getNumberOfItemsInShoppingBasket(getShoppingBasket(shoppingBasketID))
-
-    fun getAllShoppingBaskets(): List<ShoppingBasketDTO> {
-        return shoppingBasketRepository.findAll().map { shoppingBasket ->
-            shoppingBasketMapper.toDTO(shoppingBasket, itemService.getItemsInShoppingBasket(shoppingBasket))
+    fun modifyItemQuantity(shoppingBasketID: UUID, itemID: UUID, newQuantity: Int): ShoppingBasketDTO{
+        if(newQuantity == 0){
+            return removeItemFromBasket(shoppingBasketID, itemID)
         }
+        val found = shoppingBasketRepository.findByIdOrNull(shoppingBasketID) ?: throw ShoppingBasketNotFoundException()
+        found.updateItemQuantity(itemID, newQuantity)
+        shoppingBasketRepository.save(found)
+        return shoppingBasketMapper.toDTO(found)
+    }
+
+    fun removeItemFromBasket(shoppingBasketID: UUID, itemID: UUID): ShoppingBasketDTO{
+        val found = shoppingBasketRepository.findByIdOrNull(shoppingBasketID) ?: throw ShoppingBasketNotFoundException()
+        found.removeItemFromBasket(itemID)
+        shoppingBasketRepository.save(found)
+        return shoppingBasketMapper.toDTO(found)
     }
 
     fun proceedToCheckout(shoppingBasketID: UUID): ShoppingBasketDTO {
-        val sbDto = getShoppingBasketDTO(shoppingBasketID)
-        producer.sendMessage(sbDto, SBOperation.CHECKOUT)
-        logger.info("Customer ${sbDto.customerId} proceeded to checkout with shopping basket: $sbDto")
-        deleteShoppingBasket(shoppingBasketID)
-        return sbDto
+        val found = shoppingBasketRepository.findByIdOrNull(shoppingBasketID) ?: throw ShoppingBasketNotFoundException()
+        if(found.readyToCheckout()) {
+            producer.sendMessage(shoppingBasketMapper.toDTO(found), SBOperation.CHECKOUT)
+            logger.info("Customer ${found.customerID} proceeded to checkout with shopping basket: $found")
+            deleteShoppingBasket(shoppingBasketID)
+        }
+        else{
+            logger.error("Customer ${found.customerID} tried to checkout with unavailable items in shopping basket: $found")
+            throw CheckoutUnavailableException("Shopping basket contains unavailable items")
+        }
+        return shoppingBasketMapper.toDTO(found)
     }
 
     fun deleteShoppingBasket(shoppingBasketID: UUID): Boolean {
-        val found = shoppingBasketRepository.findByShoppingBasketID(shoppingBasketID)
+        val found = shoppingBasketRepository.findByIdOrNull(shoppingBasketID)
         if (found != null) {
-            val dto = getShoppingBasketDTO(shoppingBasketID)
+            val dto = shoppingBasketMapper.toDTO(found)
             shoppingBasketRepository.deleteById(shoppingBasketID)
             producer.sendMessage(dto, SBOperation.DELETED)
             logger.info("Shopping basket $shoppingBasketID deleted")
@@ -139,9 +120,11 @@ class ShoppingBasketService(private val shoppingBasketRepository: ShoppingBasket
         shoppingBasketRepository.deleteAll()
     }
 
-    fun updateShoppingBasket(shoppingBasket: ShoppingBasket): ShoppingBasketDTO {
-        shoppingBasketRepository.save(shoppingBasket)
-        return shoppingBasketMapper.toDTO(shoppingBasket, itemService.getItemsInShoppingBasket(shoppingBasket))
+    fun getAllShoppingBaskets(): List<ShoppingBasketDTO>{
+        return shoppingBasketRepository.findAll().map { shoppingBasketMapper.toDTO(it) }
     }
 
+    override fun setApplicationEventPublisher(applicationEventPublisher: ApplicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher
+    }
 }

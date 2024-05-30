@@ -1,8 +1,8 @@
 package eda.shoppingBasket.service
 
 import com.google.gson.Gson
-import eda.shoppingBasket.service.eventing.SBOperation
-import eda.shoppingBasket.service.eventing.ShoppingBasketProducer
+import eda.shoppingBasket.service.eventing.shoppingBasket.SBOperation
+import eda.shoppingBasket.service.eventing.shoppingBasket.ShoppingBasketProducer
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.repository.OfferingRepository
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -10,6 +10,7 @@ import org.apache.kafka.common.header.Header
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.annotation.KafkaListener
@@ -31,7 +32,7 @@ class ShoppingBasketEventIntegrationTest: AbstractIntegrationTest() {
     @Autowired
     lateinit var offeringRepository: OfferingRepository
 
-    final val logger = org.slf4j.LoggerFactory.getLogger(this.javaClass)
+    final val logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
     private lateinit var producer: ShoppingBasketProducer
@@ -61,11 +62,7 @@ class ShoppingBasketEventIntegrationTest: AbstractIntegrationTest() {
     @Test
     fun testEmissionCreated(){
         sleep(500) //prevent double consumption of events
-        val testDto = ShoppingBasketDTO(
-            shoppingBasketId = UUID.randomUUID(),
-            customerId = UUID.randomUUID(),
-            totalPrice = 0.0f
-        )
+        val testDto = testBasketDTOEmpty
         producer.sendMessage(testDto, SBOperation.CREATED)
         val consumed = sbCountDownLatch!!.await(3, TimeUnit.SECONDS)
         assert(consumed)
@@ -77,13 +74,7 @@ class ShoppingBasketEventIntegrationTest: AbstractIntegrationTest() {
     @Test
     fun testEmissionUpdated(){
         sleep(500) //prevent double consumption of events
-        val testDto = ShoppingBasketDTO(
-            shoppingBasketId = UUID.randomUUID(),
-            customerId = UUID.randomUUID(),
-            totalPrice = 0.0f,
-            items = mutableListOf(
-            )
-        )
+        val testDto = testBasketDTOEmpty
         producer.sendMessage(testDto, SBOperation.UPDATED)
         val consumed = sbCountDownLatch.await(3, TimeUnit.SECONDS)
         assert(consumed)

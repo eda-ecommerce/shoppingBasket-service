@@ -1,8 +1,8 @@
 package eda.shoppingBasket.service.web
 
 import eda.shoppingBasket.service.application.ShoppingBasketService
-import eda.shoppingBasket.service.model.dto.OfferingInBasketDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
+import eda.shoppingBasket.service.model.dto.OfferingInBasketDTO
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -33,7 +33,7 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
     ])
     @PostMapping("/shoppingBasket/{shoppingBasketID}/addOffering") // POST /shoppingBasket/81765f-128512-f1238/81765f-128512-f1238/2
     fun addOfferingToShoppingBasket(@RequestBody offeringInBasketDTO: OfferingInBasketDTO, @PathVariable shoppingBasketID: UUID): ResponseEntity<ShoppingBasketDTO> {
-        val savedShoppingBasketDTO = shoppingBasketService.addOfferingToShoppingBasket(shoppingBasketID, offeringInBasketDTO.offeringID, offeringInBasketDTO.quantity)
+        val savedShoppingBasketDTO = shoppingBasketService.addOfferingToBasket(shoppingBasketID, offeringInBasketDTO.offeringID, offeringInBasketDTO.quantity)
         return ResponseEntity(savedShoppingBasketDTO, HttpStatus.CREATED)
     }
 
@@ -45,7 +45,7 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
     ])
     @GetMapping("/shoppingBasket") //GET /shoppingBasket?customerID=81765f-128512-f1238
     fun getShoppingBasketByCustomerID(@RequestParam customerID: UUID): ResponseEntity<ShoppingBasketDTO> {
-        val shoppingBasketDTO = shoppingBasketService.getShoppingBasketDTOByCustomerID(customerID)
+        val shoppingBasketDTO = shoppingBasketService.getShoppingBasketByCustomerID(customerID)
         return ResponseEntity(shoppingBasketDTO, HttpStatus.OK)
     }
     @Operation(summary = "Get all shopping baskets")
@@ -65,7 +65,7 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
     ])
     @GetMapping("/shoppingBasket/{shoppingBasketID}")
     fun getShoppingBasketByID(@PathVariable shoppingBasketID: UUID): ResponseEntity<ShoppingBasketDTO> {
-        val shoppingBasketDTO = shoppingBasketService.getShoppingBasketDTO(shoppingBasketID)
+        val shoppingBasketDTO = shoppingBasketService.getShoppingBasket(shoppingBasketID)
         return ResponseEntity(shoppingBasketDTO, HttpStatus.OK)
     }
 
@@ -88,7 +88,7 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
     ])
     @DeleteMapping("/shoppingBasket/{shoppingBasketID}/items/{itemID}")
     fun removeOfferingFromShoppingBasket(@PathVariable shoppingBasketID: UUID, @PathVariable itemID : UUID): ResponseEntity<ShoppingBasketDTO> {
-        val modifiedShoppingBasketDTO = shoppingBasketService.removeItemFromShoppingBasket(shoppingBasketID, itemID)
+        val modifiedShoppingBasketDTO = shoppingBasketService.removeItemFromBasket(shoppingBasketID, itemID)
         return ResponseEntity(modifiedShoppingBasketDTO, HttpStatus.OK)
     }
 
