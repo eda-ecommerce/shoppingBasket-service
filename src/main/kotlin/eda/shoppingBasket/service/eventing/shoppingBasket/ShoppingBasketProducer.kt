@@ -1,8 +1,7 @@
-package eda.shoppingBasket.service.eventing
+package eda.shoppingBasket.service.eventing.shoppingBasket
 
 import com.google.gson.Gson
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
-import org.apache.kafka.common.protocol.types.Field.Str
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
