@@ -26,9 +26,10 @@ class OfferingService: ApplicationEventPublisherAware {
     @Autowired
     private lateinit var applicationEventPublisher: ApplicationEventPublisher
 
+    //internal event trigger
     @Transactional
     fun saveOffering(offeringEvent: OfferingEvent){
-        offeringRepository.save(offeringMapper.toEntity(offeringEvent))
+        TODO()
         applicationEventPublisher.publishEvent(OfferingAvailableEvent(this, offeringEvent.id))
     }
 
