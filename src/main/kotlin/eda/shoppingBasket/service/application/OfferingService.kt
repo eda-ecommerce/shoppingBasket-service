@@ -8,6 +8,7 @@ import eda.shoppingBasket.service.model.OfferingMapper
 import eda.shoppingBasket.service.model.dto.OfferingDTO
 import eda.shoppingBasket.service.model.entity.Offering
 import eda.shoppingBasket.service.repository.OfferingRepository
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationEventPublisherAware
@@ -26,16 +27,20 @@ class OfferingService: ApplicationEventPublisherAware {
     @Autowired
     private lateinit var applicationEventPublisher: ApplicationEventPublisher
 
+    final val logger = LoggerFactory.getLogger(this.javaClass)
+
     //external event trigger
     @Transactional
     fun saveOffering(offeringEvent: OfferingEvent){
-        offeringRepository.save(offeringMapper.toEntity(offeringEvent))
+        val saved = offeringRepository.save(offeringMapper.toEntity(offeringEvent))
+        logger.info("Offering saved: ${saved.id}")
         applicationEventPublisher.publishEvent(OfferingAvailableEvent(this, offeringEvent.id))
     }
 
     @Transactional
     fun saveOffering(offeringDTO: OfferingDTO): OfferingDTO{
         val saved = offeringRepository.save(offeringMapper.toEntity(offeringDTO))
+        logger.info("Offering saved: ${saved.id}")
         applicationEventPublisher.publishEvent(OfferingAvailableEvent(this, offeringDTO.id))
         return offeringMapper.toDto(saved)
     }
@@ -44,6 +49,7 @@ class OfferingService: ApplicationEventPublisherAware {
     fun disableOffering(offeringId: UUID){
         applicationEventPublisher.publishEvent(OfferingUnavailableEvent(this, offeringId))
         offeringRepository.deleteById(offeringId)
+        logger.info("Offering deleted: $offeringId")
     }
 
     fun getOffering(uuid: UUID): Offering {
