@@ -62,6 +62,7 @@ class ShoppingBasketService: ApplicationEventPublisherAware {
         shoppingBasketRepository.save(newSanitized)
         val dto = shoppingBasketMapper.toDTO(newSanitized)
         applicationEventPublisher.publishEvent(ShoppingBasketCreatedEvent(this, dto))
+        producer.sendMessage(dto, SBOperation.CREATED)
         return dto
     }
 
@@ -70,6 +71,7 @@ class ShoppingBasketService: ApplicationEventPublisherAware {
         val offering = offeringService.getOffering(offeringID)
         found.addOfferingToBasket(offering, count)
         shoppingBasketRepository.save(found)
+        producer.sendMessage(shoppingBasketMapper.toDTO(found), SBOperation.UPDATED)
         return shoppingBasketMapper.toDTO(found)
     }
 
@@ -80,6 +82,7 @@ class ShoppingBasketService: ApplicationEventPublisherAware {
         val found = shoppingBasketRepository.findByIdOrNull(shoppingBasketID) ?: throw ShoppingBasketNotFoundException()
         found.updateItemQuantity(itemID, newQuantity)
         shoppingBasketRepository.save(found)
+        producer.sendMessage(shoppingBasketMapper.toDTO(found), SBOperation.UPDATED)
         return shoppingBasketMapper.toDTO(found)
     }
 
@@ -87,6 +90,7 @@ class ShoppingBasketService: ApplicationEventPublisherAware {
         val found = shoppingBasketRepository.findByIdOrNull(shoppingBasketID) ?: throw ShoppingBasketNotFoundException()
         found.removeItemFromBasket(itemID)
         shoppingBasketRepository.save(found)
+        producer.sendMessage(shoppingBasketMapper.toDTO(found), SBOperation.UPDATED)
         return shoppingBasketMapper.toDTO(found)
     }
 
