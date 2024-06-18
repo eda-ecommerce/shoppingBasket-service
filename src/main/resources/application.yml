@@ -18,6 +18,9 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: shopping-basket-service
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual_immediate
     producer:
       value-serializer:  org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -56,6 +59,9 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: shopping-basket-service
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual_immediate
     producer:
       value-serializer:  org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -91,6 +97,9 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: shopping-basket-service
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual_immediate
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer

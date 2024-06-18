@@ -2,13 +2,12 @@ package eda.shoppingBasket.service.eventing.offering
 
 import com.google.gson.Gson
 import eda.shoppingBasket.service.application.OfferingService
+import jakarta.transaction.Transactional
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.common.header.Header
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.ApplicationEventPublisher
-import org.springframework.context.ApplicationEventPublisherAware
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 import java.util.concurrent.CountDownLatch
 
@@ -22,36 +21,25 @@ class OfferingConsumer {
 
     var countDownLatch = CountDownLatch(1)
 
-    @KafkaListener(topics = ["offering"])
-    fun offeringJsonListener(message: ConsumerRecord<Any, Any>) {
-        logger.info("Offering message received: ${message.value()}")
-        val payload = message.value().toString()
-        val event = Gson().fromJson(payload, OfferingEvent::class.java)
-        val headers = message.headers()
-        headers.forEach { header: Header ->
-            logger.info("Header: ${header.key()} : ${String(header.value())}")
-            if (header.key() == "operation") {
-                val operation = String(header.value())
-                when (operation) {
-                    "deleted" -> {
-                        offeringService.disableOffering(event.id)
-                        countDownLatch.countDown()
-                        return
-                    }
-                    else -> {
-                        offeringService.saveOffering(event)
-                        countDownLatch.countDown()
-                        return
-                    }
-                    //Future: call reEnableOffering(event)
-                }
+    @KafkaListener(topics = ["offering"], )
+    @Transactional
+    fun offeringJsonListener(message: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
+        logger.info("Offering message received: ${message.value()}, at timestamp: ${message.timestamp()}")
+        val event = Gson().fromJson(message.value(), OfferingEvent::class.java)
+        val operationHeader = String(message.headers().lastHeader("operation").value())
+        logger.info("Operation: $operationHeader")
+        when (operationHeader) {
+            "deleted" -> {
+                offeringService.disableOffering(event.id)
+                acknowledgment.acknowledge()
+                countDownLatch.countDown()
+            }
+            else -> {
+                offeringService.saveOffering(event)
+                acknowledgment.acknowledge()
+                countDownLatch.countDown()
             }
         }
-        countDownLatch.countDown()
-    }
-
-    fun resetLatch() {
         countDownLatch = CountDownLatch(1)
     }
-
 }
