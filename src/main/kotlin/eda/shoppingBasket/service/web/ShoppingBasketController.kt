@@ -3,6 +3,7 @@ package eda.shoppingBasket.service.web
 import eda.shoppingBasket.service.application.ShoppingBasketService
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.dto.OfferingInBasketDTO
+import eda.shoppingBasket.service.model.dto.ShoppingBasketCreationDTO
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -20,7 +21,7 @@ class ShoppingBasketController (private val shoppingBasketService: ShoppingBaske
         ApiResponse(responseCode = "400", description = "Invalid offering or otherwise bad request")
     ])
     @PostMapping("/shoppingBasket")
-    fun createShoppingBasket(@RequestBody shoppingBasketDTO: ShoppingBasketDTO): ResponseEntity<out Any> {
+    fun createShoppingBasket(@RequestBody shoppingBasketDTO: ShoppingBasketCreationDTO): ResponseEntity<out Any> {
         return ResponseEntity(shoppingBasketService.createShoppingBasket(shoppingBasketDTO), HttpStatus.CREATED)
     }
 

@@ -1,5 +1,6 @@
 package eda.shoppingBasket.service.model
 
+import eda.shoppingBasket.service.model.dto.ShoppingBasketCreationDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.entity.ShoppingBasket
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,12 +23,21 @@ class ShoppingBasketMapper {
     }
 
     fun toEntity(shoppingBasketDTO: ShoppingBasketDTO): ShoppingBasket {
-
         return ShoppingBasket(
             customerID = shoppingBasketDTO.customerId,
             totalPrice = shoppingBasketDTO.totalPrice,
             size = shoppingBasketDTO.size,
             items = shoppingBasketDTO.items.map { shoppingBasketItemMapper.toEntity(it) }.toMutableList(),
+            id = shoppingBasketDTO.id
+        )
+    }
+
+    fun toEntity(shoppingBasketCreationDTO: ShoppingBasketCreationDTO): ShoppingBasket {
+        return ShoppingBasket(
+            customerID = shoppingBasketCreationDTO.customerId,
+            totalPrice = 0.0,
+            size = 0,
+            items = mutableListOf(),
         )
     }
 

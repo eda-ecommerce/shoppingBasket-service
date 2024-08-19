@@ -27,7 +27,7 @@ class OfferingMapper {
     fun toEntity(offeringEvent: OfferingEvent): Offering{
         return Offering(
             id = offeringEvent.id,
-            status = Offering.Status.ACTIVE,
+            status = offeringEvent.status,
             quantity = offeringEvent.quantity,
             price = offeringEvent.price.toDouble()
         )

@@ -7,6 +7,7 @@ import eda.shoppingBasket.service.eventing.shoppingBasket.SBOperation
 import eda.shoppingBasket.service.eventing.shoppingBasket.ShoppingBasketProducer
 import eda.shoppingBasket.service.eventing.shoppingBasket.ShoppingBasketCreatedEvent
 import eda.shoppingBasket.service.model.ShoppingBasketMapper
+import eda.shoppingBasket.service.model.dto.ShoppingBasketCreationDTO
 import eda.shoppingBasket.service.model.dto.ShoppingBasketDTO
 import eda.shoppingBasket.service.model.entity.ShoppingBasket
 import eda.shoppingBasket.service.repository.ShoppingBasketRepository
@@ -52,15 +53,20 @@ class ShoppingBasketService: ApplicationEventPublisherAware {
         )
     }
 
-    fun createShoppingBasket(shoppingBasketDTO: ShoppingBasketDTO): ShoppingBasketDTO{
-        val newFull = shoppingBasketMapper.toEntity(shoppingBasketDTO)
-        val newSanitized = ShoppingBasket(newFull.customerID, newFull.items)
-        val found = shoppingBasketRepository.findByIdOrCustomerID(newSanitized.id, newSanitized.customerID)
+    fun createShoppingBasket(shoppingBasketDTO: ShoppingBasketCreationDTO): ShoppingBasketDTO{
+        val found = shoppingBasketRepository.findByCustomerID(shoppingBasketDTO.customerId)
         if(found != null){
             throw ShoppingBasketDuplicationException()
         }
-        shoppingBasketRepository.save(newSanitized)
-        val dto = shoppingBasketMapper.toDTO(newSanitized)
+        val new = shoppingBasketMapper.toEntity(shoppingBasketDTO)
+        if (shoppingBasketDTO.items.isNotEmpty()) {
+            for (item in shoppingBasketDTO.items) {
+                val offering = offeringService.getOffering(item.offeringId)
+                new.addOfferingToBasket(offering, item.quantity)
+            }
+        }
+        shoppingBasketRepository.save(new)
+        val dto = shoppingBasketMapper.toDTO(new)
         applicationEventPublisher.publishEvent(ShoppingBasketCreatedEvent(this, dto))
         producer.sendMessage(dto, SBOperation.CREATED)
         return dto

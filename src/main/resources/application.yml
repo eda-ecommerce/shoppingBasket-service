@@ -4,6 +4,7 @@ spring:
   main:
     banner-mode: "off"
 ---
+
 springdoc:
   swagger-ui:
     use-root-path: true
@@ -24,17 +25,16 @@ spring:
     producer:
       value-serializer:  org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    default-topic: embedded-test-topic
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost:3306}/${DB_DBNAME:database}?useSSL=false&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME:shopping-basket-service}
-    password: ${DB_PASSWORD:shopping-basket-service}
+    url: jdbc:mysql://${DB_HOST:localhost:3306}/${DB_DBNAME:sb}?useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:sb}
+    password: ${DB_PASSWORD:eda-password}
     tomcat:
       test-on-borrow: true
       validation-query: SELECT 1
@@ -44,6 +44,7 @@ spring:
 server:
   error:
     include-message: always
+  port: 8081
 ---
 springdoc:
   swagger-ui:
@@ -65,7 +66,6 @@ spring:
     producer:
       value-serializer:  org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    default-topic: embedded-test-topic
   jpa:
     hibernate:
       ddl-auto: update
@@ -103,7 +103,6 @@ spring:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    default-topic: embedded-test-topic
   jpa:
     hibernate:
       # This allows startup without a database

@@ -32,9 +32,15 @@ class OfferingService: ApplicationEventPublisherAware {
     //external event trigger
     @Transactional
     fun saveOffering(offeringEvent: OfferingEvent){
-        val saved = offeringRepository.save(offeringMapper.toEntity(offeringEvent))
-        logger.info("Offering saved: ${saved.id}")
-        applicationEventPublisher.publishEvent(OfferingAvailableEvent(this, offeringEvent.id))
+        if (offeringEvent.status == Offering.Status.INACTIVE)
+        {
+            disableOffering(offeringEvent.id)
+        }
+        else {
+            val saved = offeringRepository.save(offeringMapper.toEntity(offeringEvent))
+            logger.info("Offering saved: ${saved.id}")
+            applicationEventPublisher.publishEvent(OfferingAvailableEvent(this, offeringEvent.id))
+        }
     }
 
     @Transactional
