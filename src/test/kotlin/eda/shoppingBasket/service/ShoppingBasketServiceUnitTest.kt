@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import eda.shoppingBasket.service.application.ShoppingBasketService
 import eda.shoppingBasket.service.repository.ShoppingBasketRepository
 import io.mockk.every
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,7 +31,7 @@ class ShoppingBasketServiceUnitTest {
         // When
         val result = sbService.getShoppingBasket(basketID)
         // Then
-        assert(result == testBasketDTOFull)
+        Assertions.assertEquals(testBasketDTOFull,result)
     }
 
     //@Test
