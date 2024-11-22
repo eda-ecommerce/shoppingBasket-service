@@ -5,29 +5,31 @@ import eda.shoppingBasket.service.model.dto.OfferingDTO
 import eda.shoppingBasket.service.model.entity.Offering
 
 class OfferingMapper {
+    fun toDto(offering:Offering): OfferingDTO{
+        return OfferingDTO(
+            id = offering.id,
+            status = offering.status,
+            quantity = offering.quantity,
+            price = offering.price,
+            productID = null
+        )
+    }
+
     fun toEntity(offeringDTO: OfferingDTO): Offering{
         return Offering(
-            offeringID = offeringDTO.id,
+            id = offeringDTO.id,
+            status = offeringDTO.status!!,
             quantity = offeringDTO.quantity,
-            price = offeringDTO.price,
+            price = offeringDTO.price
         )
     }
 
     fun toEntity(offeringEvent: OfferingEvent): Offering{
         return Offering(
-            offeringID = offeringEvent.id,
+            id = offeringEvent.id,
+            status = offeringEvent.status,
             quantity = offeringEvent.quantity,
-            price = offeringEvent.price,
-        )
-    }
-
-    fun toDto(offering: Offering): OfferingDTO{
-        return OfferingDTO(
-            id = offering.offeringID,
-            quantity = offering.quantity,
-            price = offering.price,
-            productID = null,
-            status = offering.status
+            price = offeringEvent.price.toDouble()
         )
     }
 }

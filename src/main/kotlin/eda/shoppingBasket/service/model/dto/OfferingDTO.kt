@@ -3,13 +3,14 @@ package eda.shoppingBasket.service.model.dto
 import eda.shoppingBasket.service.model.entity.Offering
 import java.util.UUID
 
+//TODO: Reconsider structure because mapping
 data class OfferingDTO (
     val id: UUID,
     val productID: UUID?,
     val quantity: Int,
-    val price: Float,
+    val price: Double,
     val status: Offering.Status?
-){
+): DTO{
 
     override fun hashCode(): Int {
         var result = id.hashCode()

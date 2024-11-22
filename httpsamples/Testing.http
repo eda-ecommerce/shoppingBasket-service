@@ -1,0 +1,92 @@
+POST http://localhost:8080/shoppingBasket
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "id": "f4ddc42b-a2a3-42be-874b-dab1768d05e1",
+  "items": []
+}
+> {%
+    client.global.set("basketId", jsonPath(response.body, "$.id",))
+    client.log("Saved basketId:"+client.global.get("basketId"))
+%}
+
+### Add 2 for 3 offering
+POST http://localhost:8080/offering
+Content-Type: application/json
+
+{
+  "id": "c70ece1d-aa40-4709-b901-344a6f3944c1",
+  "productID": "933dfa05-282c-4e83-8626-32e665fa51cb",
+  "quantity": 3,
+  "price": 2,
+  "status": "ACTIVE"
+}
+> {%
+    client.global.set("offeringId", jsonPath(response.body, "$.id",))
+    client.log("Saved offeringId:"+client.global.get("offeringId"))
+%}
+
+### Add 1 for 1 Offering
+
+POST http://localhost:8080/offering
+Content-Type: application/json
+
+{
+  "id": "e13a5574-48e1-4e3b-b4d1-8533f3a570c3",
+  "productID": "933dfa05-282c-4e83-8626-32e665fa51cb",
+  "quantity": 1,
+  "price": 1,
+  "status": "ACTIVE"
+}
+> {%
+    client.global.set("offeringId2", jsonPath(response.body, "$.id",))
+    client.log("Saved offeringId2:"+client.global.get("offeringId"))
+%}
+
+
+### Add offering to basket
+
+POST http://localhost:8080/shoppingBasket/{{basketId}}/addOffering
+Content-Type: application/json
+
+{
+  "offeringID": "{{offeringId}}",
+  "quantity": 3
+}
+
+> {%
+client.global.set("itemId", jsonPath(response.body, "$.items[0].id",))
+client.log("Saved itemId:"+client.global.get("itemId"))
+ %}
+
+### Add offering2 to basket
+
+POST http://localhost:8080/shoppingBasket/{{basketId}}/addOffering
+Content-Type: application/json
+
+{
+  "offeringID": "{{offeringId2}}",
+  "quantity": 5
+}
+
+> {%
+    client.global.set("itemId2", jsonPath(response.body, "$.items[0].id",))
+    client.log("Saved itemId2:"+client.global.get("itemId"))
+%}
+
+### Modify offering quantity
+
+DELETE http://localhost:8080/shoppingBasket/{{basketId}}/items/{{itemId}}
+Content-Type: application/json
+
+{
+  "quantity": 10,
+  "offeringID": "cd9e0eda-2645-4f5e-8cd3-0eb803b8b113"
+}
+
+### Remove offering from basket
+DELETE http://localhost:8080/shoppingBasket/{{basketId}}/items/{{itemId2}}
+
+### Checkout
+DELETE http://localhost:8080/shoppingBasket/{{basketId}}/checkout
